@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GPS Platform — Diccionario de Datos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#fafbfc;--surface:#fff;--border:#e5e7eb;--border-light:#f0f1f3;
+  --text:#1a1a2e;--text-secondary:#6b7280;--text-muted:#9ca3af;
+  --blue-50:#eff6ff;--blue-100:#dbeafe;--blue-200:#bfdbfe;--blue-500:#3b82f6;--blue-600:#2563eb;--blue-700:#1d4ed8;
+  --green-50:#f0fdf4;--green-100:#dcfce7;--green-200:#bbf7d0;--green-500:#22c55e;--green-600:#16a34a;--green-700:#15803d;
+  --amber-50:#fffbeb;--amber-100:#fef3c7;--amber-500:#f59e0b;
+  --purple-50:#faf5ff;--purple-500:#a855f7;
+  --sidebar-w:280px;--header-h:64px;
+  --radius:8px;--radius-lg:12px;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.05);--shadow:0 1px 3px rgba(0,0,0,.1),0 1px 2px rgba(0,0,0,.06);--shadow-lg:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -2px rgba(0,0,0,.1);
+}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--header-h) + 24px)}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;font-size:14px}
+a{color:var(--blue-600);text-decoration:none}
+a:hover{text-decoration:underline}
+code,.mono{font-family:'JetBrains Mono','Fira Code',monospace;font-size:0.875em}
+
+/* ─── HEADER ─── */
+.header{position:fixed;top:0;left:0;right:0;height:var(--header-h);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;z-index:100;gap:16px}
+.header-logo{display:flex;align-items:center;gap:10px;min-width:var(--sidebar-w)}
+.header-logo svg{width:28px;height:28px;color:var(--blue-600)}
+.header-title{font-weight:700;font-size:16px;color:var(--text)}
+.header-subtitle{font-size:12px;color:var(--text-muted);margin-left:4px}
+.search-box{flex:1;max-width:480px;position:relative}
+.search-box input{width:100%;padding:8px 12px 8px 36px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;background:var(--bg);transition:border-color .15s,box-shadow .15s;outline:none}
+.search-box input:focus{border-color:var(--blue-500);box-shadow:0 0 0 3px var(--blue-100)}
+.search-box input::placeholder{color:var(--text-muted)}
+.search-box svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--text-muted);pointer-events:none}
+.header-meta{margin-left:auto;font-size:12px;color:var(--text-muted);white-space:nowrap}
+
+/* ─── SIDEBAR ─── */
+.sidebar{position:fixed;top:var(--header-h);left:0;bottom:0;width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:16px 0;z-index:90;-webkit-overflow-scrolling:touch}
+.sidebar::-webkit-scrollbar{width:4px}
+.sidebar::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:4px}
+.sidebar-section{margin-bottom:8px}
+.sidebar-section-title{padding:6px 20px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
+.sidebar-section-title .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sidebar-section-title .dot.blue{background:var(--blue-500)}
+.sidebar-section-title .dot.green{background:var(--green-500)}
+.sidebar-section-title .count{background:var(--bg);padding:1px 6px;border-radius:10px;font-size:10px;font-weight:500;color:var(--text-secondary)}
+.sidebar-link{display:block;padding:4px 20px 4px 36px;font-size:12.5px;color:var(--text-secondary);transition:all .1s;border-left:2px solid transparent;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-link:hover{color:var(--text);background:var(--bg);text-decoration:none}
+.sidebar-link.active{color:var(--blue-600);border-left-color:var(--blue-600);background:var(--blue-50);font-weight:500}
+.sidebar-link .mono{font-size:11.5px}
+.sidebar-link.hidden{display:none}
+
+/* ─── MAIN ─── */
+.main{margin-left:var(--sidebar-w);margin-top:var(--header-h);padding:32px 40px 80px}
+.main>*+*{margin-top:32px}
+
+/* ─── SUMMARY CARDS ─── */
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow-sm)}
+.card-label{font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);margin-bottom:4px}
+.card-value{font-size:28px;font-weight:700;color:var(--text)}
+.card-detail{font-size:12px;color:var(--text-secondary);margin-top:2px}
+
+/* ─── TABLE SECTIONS ─── */
+.table-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-sm)}
+.table-section.hidden{display:none}
+.table-header{padding:20px 24px 16px;border-bottom:1px solid var(--border-light)}
+.table-name{font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.table-name .badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.03em}
+.badge-public{background:var(--blue-50);color:var(--blue-700);border:1px solid var(--blue-200)}
+.badge-cob{background:var(--green-50);color:var(--green-700);border:1px solid var(--green-200)}
+.badge-ref{background:var(--amber-50);color:#92400e;border:1px solid var(--amber-100)}
+.badge-hyper{background:var(--purple-50);color:#7e22ce;border:1px solid #e9d5ff}
+.table-purpose{margin-top:8px;font-size:13.5px;color:var(--text-secondary);line-height:1.5}
+.table-meta{display:flex;flex-wrap:wrap;gap:16px;margin-top:10px;font-size:12px;color:var(--text-muted)}
+.table-meta span{display:flex;align-items:center;gap:4px}
+.table-meta .meta-label{font-weight:600;color:var(--text-secondary)}
+
+/* ─── DATA TABLE ─── */
+.data-table-wrap{overflow-x:auto}
+.data-table{width:100%;border-collapse:collapse;font-size:13px}
+.data-table th{background:var(--bg);padding:10px 16px;text-align:left;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0}
+.data-table td{padding:8px 16px;border-bottom:1px solid var(--border-light);vertical-align:top}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:var(--bg)}
+.col-name{font-weight:500;color:var(--text);white-space:nowrap}
+.col-name code{background:var(--bg);padding:1px 5px;border-radius:3px;border:1px solid var(--border-light);font-size:12px}
+.col-type{color:var(--blue-600);white-space:nowrap}
+.col-nullable{text-align:center}
+.col-nullable .yes{color:var(--text-muted)}
+.col-nullable .no{color:#dc2626;font-weight:600}
+.col-default{color:var(--text-secondary);font-size:12px}
+.col-default code{background:var(--bg);padding:1px 4px;border-radius:3px;font-size:11px}
+.col-fk{font-size:12px}
+.col-fk a{color:var(--green-600);font-weight:500}
+.col-desc{color:var(--text-secondary);max-width:280px}
+.pk-icon{display:inline-block;background:#fef3c7;color:#92400e;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;margin-left:4px;vertical-align:middle}
+.uq-icon{display:inline-block;background:var(--purple-50);color:#7e22ce;font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;margin-left:4px;vertical-align:middle}
+
+/* ─── REF TABLE COMPACT ─── */
+.ref-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;padding:20px 24px}
+.ref-card{border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px}
+.ref-card-name{font-weight:600;font-size:13px;color:var(--text)}
+.ref-card-name code{font-size:12px}
+.ref-card-detail{font-size:12px;color:var(--text-secondary);margin-top:2px}
+.ref-card-pk{font-size:11px;color:var(--text-muted);margin-top:4px}
+
+/* ─── EXTRA INFO ─── */
+.extra-info{padding:12px 24px;background:var(--bg);border-top:1px solid var(--border-light);font-size:12px;color:var(--text-secondary)}
+.extra-info strong{color:var(--text)}
+
+/* ─── NO RESULTS ─── */
+.no-results{display:none;text-align:center;padding:60px 20px;color:var(--text-muted);font-size:15px}
+.no-results.visible{display:block}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:900px){
+  .sidebar{display:none}
+  .main{margin-left:0}
+  .header-logo{min-width:auto}
+}
+@media(max-width:600px){
+  .main{padding:20px 16px 60px}
+  .summary{grid-template-columns:1fr 1fr}
+  .header{padding:0 12px}
+  .header-meta{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<header class="header">
+  <div class="header-logo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>
+    <div>
+      <div class="header-title">Diccionario de Datos <span class="header-subtitle">GPS Platform</span></div>
+    </div>
+  </div>
+  <div class="search-box">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+    <input type="text" id="searchInput" placeholder="Buscar tabla, columna o descripcion..." autocomplete="off">
+  </div>
+  <div class="header-meta">Actualizado: 2026-03-24</div>
+</header>
+
+<!-- ═══ SIDEBAR ═══ -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-section">
+    <div class="sidebar-section-title"><span class="dot blue"></span> public (GPS) <span class="count">13</span></div>
+    <a class="sidebar-link" href="#public-sync_accounts"><span class="mono">sync_accounts</span></a>
+    <a class="sidebar-link" href="#public-vehicle_status_history"><span class="mono">vehicle_status_history</span></a>
+    <a class="sidebar-link" href="#public-sync_cycle_log"><span class="mono">sync_cycle_log</span></a>
+    <a class="sidebar-link" href="#public-vehicle_state_log"><span class="mono">vehicle_state_log</span></a>
+    <a class="sidebar-link" href="#public-vehicle_latest_state"><span class="mono">vehicle_latest_state</span></a>
+    <a class="sidebar-link" href="#public-pattern_computation_log"><span class="mono">pattern_computation_log</span></a>
+    <a class="sidebar-link" href="#public-pattern_home_location"><span class="mono">pattern_home_location</span></a>
+    <a class="sidebar-link" href="#public-pattern_frequent_stops"><span class="mono">pattern_frequent_stops</span></a>
+    <a class="sidebar-link" href="#public-pattern_daily_routine"><span class="mono">pattern_daily_routine</span></a>
+    <a class="sidebar-link" href="#public-pattern_speed_profile"><span class="mono">pattern_speed_profile</span></a>
+    <a class="sidebar-link" href="#public-pattern_trip_events"><span class="mono">pattern_trip_events</span></a>
+    <a class="sidebar-link" href="#public-pattern_anomaly_baseline"><span class="mono">pattern_anomaly_baseline</span></a>
+    <a class="sidebar-link" href="#public-google_places"><span class="mono">google_places</span></a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-title"><span class="dot blue"></span> public (Legacy) <span class="count">5</span></div>
+    <a class="sidebar-link" href="#public-collectors"><span class="mono">collectors</span></a>
+    <a class="sidebar-link" href="#public-clients"><span class="mono">clients</span></a>
+    <a class="sidebar-link" href="#public-known_locations"><span class="mono">known_locations</span></a>
+    <a class="sidebar-link" href="#public-gps_records"><span class="mono">gps_records</span></a>
+    <a class="sidebar-link" href="#public-detected_locations"><span class="mono">detected_locations</span></a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-title"><span class="dot green"></span> cob (Reference) <span class="count">22</span></div>
+    <a class="sidebar-link" href="#cob-ref-tables"><span class="mono">ref_* tables (22)</span></a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-title"><span class="dot green"></span> cob (Core) <span class="count">9</span></div>
+    <a class="sidebar-link" href="#cob-debtors"><span class="mono">debtors</span></a>
+    <a class="sidebar-link" href="#cob-debtor_addresses"><span class="mono">debtor_addresses</span></a>
+    <a class="sidebar-link" href="#cob-debtor_phones"><span class="mono">debtor_phones</span></a>
+    <a class="sidebar-link" href="#cob-vehicles"><span class="mono">vehicles</span></a>
+    <a class="sidebar-link" href="#cob-contracts"><span class="mono">contracts</span></a>
+    <a class="sidebar-link" href="#cob-gps_devices"><span class="mono">gps_devices</span></a>
+    <a class="sidebar-link" href="#cob-delinquent_accounts"><span class="mono">delinquent_accounts</span></a>
+    <a class="sidebar-link" href="#cob-ml_analysis"><span class="mono">ml_analysis</span></a>
+    <a class="sidebar-link" href="#cob-detected_locations"><span class="mono">detected_locations</span></a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-title"><span class="dot green"></span> cob (Operations) <span class="count">12</span></div>
+    <a class="sidebar-link" href="#cob-collectors"><span class="mono">collectors</span></a>
+    <a class="sidebar-link" href="#cob-collector_buckets"><span class="mono">collector_buckets</span></a>
+    <a class="sidebar-link" href="#cob-known_locations"><span class="mono">known_locations</span></a>
+    <a class="sidebar-link" href="#cob-daily_routes"><span class="mono">daily_routes</span></a>
+    <a class="sidebar-link" href="#cob-route_stops"><span class="mono">route_stops</span></a>
+    <a class="sidebar-link" href="#cob-visits"><span class="mono">visits</span></a>
+    <a class="sidebar-link" href="#cob-promise_history"><span class="mono">promise_history</span></a>
+    <a class="sidebar-link" href="#cob-address_suggestions"><span class="mono">address_suggestions</span></a>
+    <a class="sidebar-link" href="#cob-gps_records"><span class="mono">gps_records</span></a>
+    <a class="sidebar-link" href="#cob-gps_status_history"><span class="mono">gps_status_history</span></a>
+    <a class="sidebar-link" href="#cob-bucket_rules"><span class="mono">bucket_rules</span></a>
+    <a class="sidebar-link" href="#cob-client_promise_overrides"><span class="mono">client_promise_overrides</span></a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-title"><span class="dot green"></span> cob (Analytics &amp; Tracking) <span class="count">12</span></div>
+    <a class="sidebar-link" href="#cob-in_app_alerts"><span class="mono">in_app_alerts</span></a>
+    <a class="sidebar-link" href="#cob-collection_data"><span class="mono">collection_data</span></a>
+    <a class="sidebar-link" href="#cob-collector_positions"><span class="mono">collector_positions</span></a>
+    <a class="sidebar-link" href="#cob-vehicle_latest_positions"><span class="mono">vehicle_latest_positions</span></a>
+    <a class="sidebar-link" href="#cob-collector_devices"><span class="mono">collector_devices</span></a>
+    <a class="sidebar-link" href="#cob-gps_frequency_locations"><span class="mono">gps_frequency_locations</span></a>
+    <a class="sidebar-link" href="#cob-route_strategy_config"><span class="mono">route_strategy_config</span></a>
+    <a class="sidebar-link" href="#cob-portfolio_daily_snapshots"><span class="mono">portfolio_daily_snapshots</span></a>
+    <a class="sidebar-link" href="#cob-gps_daily_mileage"><span class="mono">gps_daily_mileage</span></a>
+    <a class="sidebar-link" href="#cob-vehicle_inspections"><span class="mono">vehicle_inspections</span></a>
+    <a class="sidebar-link" href="#cob-gps_device_summary"><span class="mono">gps_device_summary</span></a>
+    <a class="sidebar-link" href="#cob-audit-tables"><span class="mono">audit tables (4)</span></a>
+  </div>
+</nav>
+
+<!-- ═══ MAIN ═══ -->
+<main class="main">
+
+<!-- ─── SUMMARY ─── -->
+<section class="summary">
+  <div class="card">
+    <div class="card-label">Database</div>
+    <div class="card-value" style="font-size:20px"><code>gps_data</code></div>
+    <div class="card-detail">PostgreSQL 15 + PostGIS 3.3 + TimescaleDB</div>
+  </div>
+  <div class="card">
+    <div class="card-label">Total Tables</div>
+    <div class="card-value">61+</div>
+    <div class="card-detail">+ 22 reference tables + 1 function + 1 trigger</div>
+  </div>
+  <div class="card">
+    <div class="card-label">Schemas</div>
+    <div class="card-value" style="font-size:20px">
+      <span style="color:var(--blue-600)">public</span> &middot;
+      <span style="color:var(--green-600)">cob</span>
+    </div>
+    <div class="card-detail">GPS Tracking &middot; Cobranza (Collections)</div>
+  </div>
+  <div class="card">
+    <div class="card-label">Architecture</div>
+    <div class="card-value" style="font-size:16px">Shared RDS</div>
+    <div class="card-detail">Single instance, multi-schema, 3NF normalized (cob)</div>
+  </div>
+</section>
+
+<div id="noResults" class="no-results">No se encontraron tablas que coincidan con la busqueda.</div>
+
+<!-- ════════════════════════════════════════════════ -->
+<!--  SCHEMA: public (GPS Tracking)                  -->
+<!-- ════════════════════════════════════════════════ -->
+
+<!-- 1. sync_accounts -->
+<section class="table-section" id="public-sync_accounts" data-table="public.sync_accounts" data-schema="public">
+  <div class="table-header">
+    <div class="table-name"><code>public.sync_accounts</code> <span class="badge badge-public">public</span></div>
+    <div class="table-purpose">WhatsGPS API account credentials for the GPS sync worker. Each row = one WhatsGPS account (Datamovil 1-4).</div>
+    <div class="table-meta">
+      <span><span class="meta-label">Write:</span> proj-worker-gps-sync</span>
+      <span><span class="meta-label">Read:</span> proj-worker-gps-sync</span>
+    </div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">UUID</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>gen_random_uuid()</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>name</code><span class="uq-icon">UQ</span></td><td class="col-type">VARCHAR(100)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Account display name</td></tr>
+      <tr><td class="col-name"><code>username</code></td><td class="col-type">VARCHAR(100)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">WhatsGPS login</td></tr>
+      <tr><td class="col-name"><code>user_id</code></td><td class="col-type">BIGINT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">WhatsGPS user ID</td></tr>
+      <tr><td class="col-name"><code>account_type</code></td><td class="col-type">VARCHAR(20)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>'client'</code></td><td class="col-fk"></td><td class="col-desc">'client' or 'employee'</td></tr>
+      <tr><td class="col-name"><code>is_enabled</code></td><td class="col-type">BOOL</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>true</code></td><td class="col-fk"></td><td class="col-desc">Enables sync</td></tr>
+      <tr><td class="col-name"><code>status</code></td><td class="col-type">VARCHAR(20)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>'idle'</code></td><td class="col-fk"></td><td class="col-desc">'idle', 'syncing', 'error'</td></tr>
+      <tr><td class="col-name"><code>vehicle_count</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc">Cached vehicle count</td></tr>
+      <tr><td class="col-name"><code>sync_interval_seconds</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Override for sync interval</td></tr>
+      <tr><td class="col-name"><code>last_sync_at</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Last successful sync</td></tr>
+      <tr><td class="col-name"><code>last_error</code></td><td class="col-type">TEXT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Last error message</td></tr>
+      <tr><td class="col-name"><code>consecutive_failures</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc">Error counter</td></tr>
+      <tr><td class="col-name"><code>created_at</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>NOW()</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>updated_at</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>NOW()</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 2. vehicle_status_history -->
+<section class="table-section" id="public-vehicle_status_history" data-table="public.vehicle_status_history" data-schema="public">
+  <div class="table-header">
+    <div class="table-name"><code>public.vehicle_status_history</code> <span class="badge badge-public">public</span> <span class="badge badge-hyper">TimescaleDB</span></div>
+    <div class="table-purpose">Raw GPS telemetry from all vehicles, ingested every 60s. 7-day chunk interval, 90-day retention.</div>
+    <div class="table-meta">
+      <span><span class="meta-label">Write:</span> proj-worker-gps-sync</span>
+      <span><span class="meta-label">Read:</span> proj-api-gps-data, proj-back-cob-ia (ML pipeline)</span>
+    </div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>timestamp</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">GPS report time (hypertable partition key)</td></tr>
+      <tr><td class="col-name"><code>car_id</code></td><td class="col-type">BIGINT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">WhatsGPS internal vehicle ID</td></tr>
+      <tr><td class="col-name"><code>imei</code></td><td class="col-type">VARCHAR(20)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Device IMEI</td></tr>
+      <tr><td class="col-name"><code>account_id</code></td><td class="col-type">UUID</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"><a href="#public-sync_accounts">sync_accounts.id</a></td><td class="col-desc">Source account</td></tr>
+      <tr><td class="col-name"><code>latitude</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>longitude</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>speed</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc">km/h</td></tr>
+      <tr><td class="col-name"><code>direction</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc">Heading degrees</td></tr>
+      <tr><td class="col-name"><code>acc_status</code></td><td class="col-type">BOOLEAN</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>false</code></td><td class="col-fk"></td><td class="col-desc">ACC on/off</td></tr>
+      <tr><td class="col-name"><code>is_online</code></td><td class="col-type">BOOLEAN</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>false</code></td><td class="col-fk"></td><td class="col-desc">Device online</td></tr>
+      <tr><td class="col-name"><code>mileage</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Odometer km</td></tr>
+      <tr><td class="col-name"><code>raw_data</code></td><td class="col-type">JSONB</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Full WhatsGPS payload</td></tr>
+      <tr><td class="col-name"><code>ingested_at</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>NOW()</code></td><td class="col-fk"></td><td class="col-desc">When worker inserted</td></tr>
+    </tbody>
+  </table></div>
+  <div class="extra-info"><strong>Indexes:</strong> <code>(car_id, timestamp)</code> UNIQUE, <code>(account_id, timestamp DESC)</code>, <code>(imei, timestamp DESC)</code><br><strong>Trigger:</strong> <code>trg_state_diff</code> -- AFTER INSERT/UPDATE fires <code>trg_vehicle_state_differential()</code> to populate <code>vehicle_state_log</code> + <code>vehicle_latest_state</code></div>
+</section>
+
+<!-- 3. sync_cycle_log -->
+<section class="table-section" id="public-sync_cycle_log" data-table="public.sync_cycle_log" data-schema="public">
+  <div class="table-header">
+    <div class="table-name"><code>public.sync_cycle_log</code> <span class="badge badge-public">public</span></div>
+    <div class="table-purpose">Audit log of each sync cycle execution.</div>
+    <div class="table-meta">
+      <span><span class="meta-label">Write:</span> proj-worker-gps-sync</span>
+      <span><span class="meta-label">Read:</span> proj-worker-gps-sync, monitoring</span>
+    </div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">UUID</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>gen_random_uuid()</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>started_at</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Cycle start</td></tr>
+      <tr><td class="col-name"><code>finished_at</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Cycle end</td></tr>
+      <tr><td class="col-name"><code>accounts_queried</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc">How many accounts</td></tr>
+      <tr><td class="col-name"><code>vehicles_synced</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc">Total vehicles</td></tr>
+      <tr><td class="col-name"><code>errors</code></td><td class="col-type">JSONB</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>'[]'</code></td><td class="col-fk"></td><td class="col-desc">Error details</td></tr>
+      <tr><td class="col-name"><code>duration_ms</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Total duration</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 4. vehicle_state_log -->
+<section class="table-section" id="public-vehicle_state_log" data-table="public.vehicle_state_log" data-schema="public">
+  <div class="table-header">
+    <div class="table-name"><code>public.vehicle_state_log</code> <span class="badge badge-public">public</span></div>
+    <div class="table-purpose">Differential state log. Collapses consecutive "stopped at same place" into a single row. Reduces 35M to 2M rows.</div>
+    <div class="table-meta">
+      <span><span class="meta-label">Write:</span> DB trigger on vehicle_status_history</span>
+      <span><span class="meta-label">Read:</span> proj-api-gps-data</span>
+    </div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">BIGSERIAL</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>car_id</code></td><td class="col-type">BIGINT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>imei</code></td><td class="col-type">VARCHAR(20)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>account_id</code></td><td class="col-type">UUID</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>latitude</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>longitude</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>state</code></td><td class="col-type">VARCHAR(10)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>'stopped'</code></td><td class="col-fk"></td><td class="col-desc">'stopped' or 'moving'</td></tr>
+      <tr><td class="col-name"><code>speed</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc">Current speed</td></tr>
+      <tr><td class="col-name"><code>max_speed</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc">Max during segment</td></tr>
+      <tr><td class="col-name"><code>direction</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>acc_status</code></td><td class="col-type">BOOLEAN</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>false</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>mileage_start</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Odometer at start</td></tr>
+      <tr><td class="col-name"><code>mileage_end</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Odometer at end</td></tr>
+      <tr><td class="col-name"><code>started_at</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">State began</td></tr>
+      <tr><td class="col-name"><code>last_seen_at</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Latest update</td></tr>
+      <tr><td class="col-name"><code>duration_seconds</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>data_points</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>1</code></td><td class="col-fk"></td><td class="col-desc">Raw points collapsed</td></tr>
+      <tr><td class="col-name"><code>distance_km</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc">Distance for this segment</td></tr>
+    </tbody>
+  </table></div>
+  <div class="extra-info"><strong>Indexes:</strong> <code>(car_id, started_at DESC)</code>, <code>(imei, started_at DESC)</code></div>
+</section>
+
+<!-- 5. vehicle_latest_state -->
+<section class="table-section" id="public-vehicle_latest_state" data-table="public.vehicle_latest_state" data-schema="public">
+  <div class="table-header">
+    <div class="table-name"><code>public.vehicle_latest_state</code> <span class="badge badge-public">public</span></div>
+    <div class="table-purpose">Materialized latest state per vehicle (one row per car_id). Updated by the same trigger.</div>
+    <div class="table-meta">
+      <span><span class="meta-label">Write:</span> DB trigger</span>
+      <span><span class="meta-label">Read:</span> proj-api-gps-data</span>
+    </div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>car_id</code><span class="pk-icon">PK</span></td><td class="col-type">BIGINT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>imei</code></td><td class="col-type">VARCHAR(20)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>state_log_id</code></td><td class="col-type">BIGINT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Points to vehicle_state_log.id</td></tr>
+      <tr><td class="col-name"><code>latitude</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>longitude</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>state</code></td><td class="col-type">VARCHAR(10)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>'stopped'</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>speed</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>mileage</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>last_seen_at</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 6. pattern_computation_log -->
+<section class="table-section" id="public-pattern_computation_log" data-table="public.pattern_computation_log" data-schema="public">
+  <div class="table-header">
+    <div class="table-name"><code>public.pattern_computation_log</code> <span class="badge badge-public">public</span></div>
+    <div class="table-purpose">Tracks which pattern analysis has been computed per vehicle to enable incremental updates.</div>
+    <div class="table-meta">
+      <span><span class="meta-label">Write:</span> proj-api-gps-data, proj-worker-gps-sync</span>
+      <span><span class="meta-label">Read:</span> same</span>
+    </div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">UUID</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>gen_random_uuid()</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>car_id</code></td><td class="col-type">BIGINT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>pattern_type</code></td><td class="col-type">VARCHAR(30)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">'home', 'stops', 'routine', etc.</td></tr>
+      <tr><td class="col-name"><code>last_computed_at</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>data_horizon_start</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Data range start</td></tr>
+      <tr><td class="col-name"><code>data_horizon_end</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Data range end</td></tr>
+      <tr><td class="col-name"><code>rows_produced</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>duration_ms</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>error</code></td><td class="col-type">TEXT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>created_at</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>NOW()</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+    </tbody>
+  </table></div>
+  <div class="extra-info"><strong>Indexes:</strong> <code>(car_id, pattern_type)</code> UNIQUE</div>
+</section>
+
+<!-- 7. pattern_home_location -->
+<section class="table-section" id="public-pattern_home_location" data-table="public.pattern_home_location" data-schema="public">
+  <div class="table-header">
+    <div class="table-name"><code>public.pattern_home_location</code> <span class="badge badge-public">public</span></div>
+    <div class="table-purpose">Detected home location per vehicle from overnight clustering.</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>car_id</code><span class="pk-icon">PK</span></td><td class="col-type">BIGINT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>latitude</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>longitude</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>confidence</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>nights_observed</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>total_hours</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>first_seen_at</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>last_seen_at</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>updated_at</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>NOW()</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 8. pattern_frequent_stops -->
+<section class="table-section" id="public-pattern_frequent_stops" data-table="public.pattern_frequent_stops" data-schema="public">
+  <div class="table-header">
+    <div class="table-name"><code>public.pattern_frequent_stops</code> <span class="badge badge-public">public</span></div>
+    <div class="table-purpose">Frequently visited locations per vehicle.</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">UUID</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>gen_random_uuid()</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>car_id</code></td><td class="col-type">BIGINT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>latitude</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>longitude</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>category</code></td><td class="col-type">VARCHAR(20)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">'work', 'shop', etc.</td></tr>
+      <tr><td class="col-name"><code>visit_count</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>avg_duration_min</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>total_duration_min</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>first_visit_at</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>last_visit_at</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>is_discarded</code></td><td class="col-type">BOOLEAN</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>false</code></td><td class="col-fk"></td><td class="col-desc">Marked as irrelevant</td></tr>
+      <tr><td class="col-name"><code>updated_at</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>NOW()</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 9. pattern_daily_routine -->
+<section class="table-section" id="public-pattern_daily_routine" data-table="public.pattern_daily_routine" data-schema="public">
+  <div class="table-header">
+    <div class="table-name"><code>public.pattern_daily_routine</code> <span class="badge badge-public">public</span></div>
+    <div class="table-purpose">Daily aggregated routine metrics per vehicle.</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>car_id</code><span class="pk-icon">PK</span></td><td class="col-type">BIGINT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Composite PK</td></tr>
+      <tr><td class="col-name"><code>date</code><span class="pk-icon">PK</span></td><td class="col-type">DATE</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Composite PK</td></tr>
+      <tr><td class="col-name"><code>first_departure</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>last_arrival</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>moving_minutes</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>parked_minutes</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>idle_minutes</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>total_distance_km</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>trip_count</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>max_speed</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>updated_at</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>NOW()</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 10. pattern_speed_profile -->
+<section class="table-section" id="public-pattern_speed_profile" data-table="public.pattern_speed_profile" data-schema="public">
+  <div class="table-header">
+    <div class="table-name"><code>public.pattern_speed_profile</code> <span class="badge badge-public">public</span></div>
+    <div class="table-purpose">Hourly speed statistics per vehicle per day.</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>car_id</code><span class="pk-icon">PK</span></td><td class="col-type">BIGINT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Composite PK</td></tr>
+      <tr><td class="col-name"><code>date</code><span class="pk-icon">PK</span></td><td class="col-type">DATE</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Composite PK</td></tr>
+      <tr><td class="col-name"><code>hour</code><span class="pk-icon">PK</span></td><td class="col-type">SMALLINT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Composite PK</td></tr>
+      <tr><td class="col-name"><code>avg_speed</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>median_speed</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>p95_speed</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>max_speed</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>sample_count</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>updated_at</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>NOW()</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 11. pattern_trip_events -->
+<section class="table-section" id="public-pattern_trip_events" data-table="public.pattern_trip_events" data-schema="public">
+  <div class="table-header">
+    <div class="table-name"><code>public.pattern_trip_events</code> <span class="badge badge-public">public</span></div>
+    <div class="table-purpose">Individual trip and stop events detected per vehicle.</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">UUID</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>gen_random_uuid()</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>car_id</code></td><td class="col-type">BIGINT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>event_type</code></td><td class="col-type">VARCHAR(10)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">'trip' or 'stop'</td></tr>
+      <tr><td class="col-name"><code>started_at</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>ended_at</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>duration_min</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>start_lat</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>start_lng</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>end_lat</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>end_lng</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>distance_km</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>max_speed</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>avg_speed</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>point_count</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>updated_at</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>NOW()</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 12. pattern_anomaly_baseline -->
+<section class="table-section" id="public-pattern_anomaly_baseline" data-table="public.pattern_anomaly_baseline" data-schema="public">
+  <div class="table-header">
+    <div class="table-name"><code>public.pattern_anomaly_baseline</code> <span class="badge badge-public">public</span></div>
+    <div class="table-purpose">Baseline expected behavior per vehicle per day-of-week per hour for anomaly detection.</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>car_id</code><span class="pk-icon">PK</span></td><td class="col-type">BIGINT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Composite PK</td></tr>
+      <tr><td class="col-name"><code>day_of_week</code><span class="pk-icon">PK</span></td><td class="col-type">SMALLINT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">0=Mon..6=Sun</td></tr>
+      <tr><td class="col-name"><code>hour</code><span class="pk-icon">PK</span></td><td class="col-type">SMALLINT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">0-23</td></tr>
+      <tr><td class="col-name"><code>p50_speed</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>p95_speed</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>typical_lat</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>typical_lng</code></td><td class="col-type">DOUBLE PRECISION</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>sample_days</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>updated_at</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>NOW()</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 13. google_places -->
+<section class="table-section" id="public-google_places" data-table="public.google_places" data-schema="public">
+  <div class="table-header">
+    <div class="table-name"><code>public.google_places</code> <span class="badge badge-public">public</span></div>
+    <div class="table-purpose">Corralones and talleres scraped from Google Places API. ~2,380 records. Used as POIs on the live monitoring map.</div>
+    <div class="table-meta">
+      <span><span class="meta-label">Write:</span> Lambda (monthly refresh)</span>
+      <span><span class="meta-label">Read:</span> proj-back-cob-ia (map endpoint)</span>
+    </div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>place_id</code><span class="pk-icon">PK</span></td><td class="col-type">VARCHAR(300)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Google Place ID</td></tr>
+      <tr><td class="col-name"><code>name</code></td><td class="col-type">TEXT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Business name</td></tr>
+      <tr><td class="col-name"><code>category</code></td><td class="col-type">VARCHAR(20)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">'corralon' or 'taller'</td></tr>
+      <tr><td class="col-name"><code>estado</code></td><td class="col-type">VARCHAR(50)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Mexican state</td></tr>
+      <tr><td class="col-name"><code>address</code></td><td class="col-type">TEXT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>latitude</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>longitude</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>rating</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>user_ratings_total</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>types</code></td><td class="col-type">JSON</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Google place types</td></tr>
+      <tr><td class="col-name"><code>business_status</code></td><td class="col-type">VARCHAR(30)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>search_query</code></td><td class="col-type">TEXT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>first_seen_at</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>updated_at</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ════════════════════════════════════════════════ -->
+<!--  SCHEMA: public (Legacy)                        -->
+<!-- ════════════════════════════════════════════════ -->
+
+<!-- 14. public.collectors -->
+<section class="table-section" id="public-collectors" data-table="public.collectors" data-schema="public">
+  <div class="table-header">
+    <div class="table-name"><code>public.collectors</code> <span class="badge badge-public">public</span> <span class="badge badge-ref">legacy</span></div>
+    <div class="table-purpose">Field collection agents (17 cobradores + supervisors). Legacy Spanish columns.</div>
+    <div class="table-meta">
+      <span><span class="meta-label">Write:</span> proj-back-cob-ia</span>
+      <span><span class="meta-label">Read:</span> proj-back-cob-ia</span>
+    </div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>autoincrement</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>id_empleado</code><span class="uq-icon">UQ</span></td><td class="col-type">VARCHAR(20)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Employee ID (COB-B1-A1)</td></tr>
+      <tr><td class="col-name"><code>nombre</code></td><td class="col-type">VARCHAR(100)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Full name</td></tr>
+      <tr><td class="col-name"><code>hashed_password</code></td><td class="col-type">VARCHAR(255)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">bcrypt hash</td></tr>
+      <tr><td class="col-name"><code>activo</code></td><td class="col-type">BOOLEAN</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>true</code></td><td class="col-fk"></td><td class="col-desc">Is active</td></tr>
+      <tr><td class="col-name"><code>zona_default</code></td><td class="col-type">VARCHAR(50)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Default zone</td></tr>
+      <tr><td class="col-name"><code>max_visitas_diarias</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>20</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>capacidad_diaria</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>15</code></td><td class="col-fk"></td><td class="col-desc">Configured daily capacity</td></tr>
+      <tr><td class="col-name"><code>carga_actual</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc">Current assignment load</td></tr>
+      <tr><td class="col-name"><code>buckets_asignados</code></td><td class="col-type">JSON</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">e.g. ["B1","B2"]</td></tr>
+      <tr><td class="col-name"><code>es_supervisor</code></td><td class="col-type">BOOLEAN</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>false</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>latitud_inicio</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Start lat</td></tr>
+      <tr><td class="col-name"><code>longitud_inicio</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Start lng</td></tr>
+      <tr><td class="col-name"><code>creado_en</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>now()</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>actualizado_en</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>now()</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 15. public.clients (god-table) -->
+<section class="table-section" id="public-clients" data-table="public.clients" data-schema="public">
+  <div class="table-header">
+    <div class="table-name"><code>public.clients</code> <span class="badge badge-public">public</span> <span class="badge badge-ref">legacy</span></div>
+    <div class="table-purpose">All clients -- both morosos (794, datos_cobranza IS NOT NULL) and GPS-only (~3432). Contains financial, GPS, ML, and collection data in one wide table ("god-table"). ~4226 rows.</div>
+    <div class="table-meta">
+      <span><span class="meta-label">Write:</span> proj-back-cob-ia (cartera upload, ML pipeline, GPS sync, field app)</span>
+      <span><span class="meta-label">Read:</span> proj-back-cob-ia</span>
+      <span><span class="meta-label">Size:</span> ~4,226 rows</span>
+    </div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>autoincrement</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>imei</code><span class="uq-icon">UQ</span></td><td class="col-type">VARCHAR(50)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">GPS device IMEI</td></tr>
+      <tr><td class="col-name"><code>numero_contrato</code><span class="uq-icon">UQ</span></td><td class="col-type">VARCHAR(50)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Contract number</td></tr>
+      <tr><td class="col-name"><code>nombre_dispositivo</code></td><td class="col-type">VARCHAR(100)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">GPS tracker name</td></tr>
+      <tr><td class="col-name"><code>nombre</code></td><td class="col-type">VARCHAR(200)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Client name</td></tr>
+      <tr><td class="col-name"><code>telefono</code></td><td class="col-type">VARCHAR(20)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Phone</td></tr>
+      <tr><td class="col-name"><code>telefono_secundario</code></td><td class="col-type">VARCHAR(20)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Secondary phone</td></tr>
+      <tr><td class="col-name"><code>correo</code></td><td class="col-type">VARCHAR(100)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Email</td></tr>
+      <tr><td class="col-name"><code>uso_auto</code></td><td class="col-type">VARCHAR(50)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">personal/taxi/cargo</td></tr>
+      <tr><td class="col-name"><code>marca_auto</code></td><td class="col-type">VARCHAR(50)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Vehicle make</td></tr>
+      <tr><td class="col-name"><code>tipo_auto</code></td><td class="col-type">VARCHAR(50)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Vehicle body type</td></tr>
+      <tr><td class="col-name"><code>modelo_auto</code></td><td class="col-type">VARCHAR(50)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Vehicle model</td></tr>
+      <tr><td class="col-name"><code>valor_unidad</code></td><td class="col-type">NUMERIC(14,2)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Vehicle value</td></tr>
+      <tr><td class="col-name"><code>total_financiado</code></td><td class="col-type">NUMERIC(14,2)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Total financed</td></tr>
+      <tr><td class="col-name"><code>fecha_contrato</code></td><td class="col-type">DATE</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Contract date</td></tr>
+      <tr><td class="col-name"><code>datos_cobranza</code></td><td class="col-type">JSON</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Dynamic Excel columns (NULL = not moroso)</td></tr>
+      <tr><td class="col-name"><code>dias_vencidos</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc">Days overdue</td></tr>
+      <tr><td class="col-name"><code>segmento</code></td><td class="col-type">VARCHAR(20)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Bucket B1-B10</td></tr>
+      <tr><td class="col-name"><code>monto_adeudado</code></td><td class="col-type">NUMERIC(14,2)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc">Amount owed</td></tr>
+      <tr><td class="col-name"><code>estado_cobranza</code></td><td class="col-type">VARCHAR(20)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>'active'</code></td><td class="col-fk"></td><td class="col-desc">Collection status</td></tr>
+      <tr><td class="col-name"><code>cobrador_asignado_id</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"><a href="#public-collectors">collectors.id</a></td><td class="col-desc">Assigned collector</td></tr>
+      <tr><td class="col-name"><code>tiene_gps</code></td><td class="col-type">BOOLEAN</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>false</code></td><td class="col-fk"></td><td class="col-desc">Has GPS device</td></tr>
+      <tr><td class="col-name"><code>estado_gps</code></td><td class="col-type">VARCHAR(20)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">online/offline/never_had</td></tr>
+      <tr><td class="col-name"><code>procesado_ml</code></td><td class="col-type">BOOLEAN</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>false</code></td><td class="col-fk"></td><td class="col-desc">ML processed</td></tr>
+      <tr><td class="col-name"><code>prioridad_cobranza</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Collection priority 0-100</td></tr>
+      <tr><td class="col-name"><code>activo</code></td><td class="col-type">BOOLEAN</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>true</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>creado_en</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>now()</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>actualizado_en</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>now()</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+    </tbody>
+  </table></div>
+  <div class="extra-info"><strong>Note:</strong> This is a condensed view. The full table has 70+ columns including financial, GPS, ML, promise, and routing fields. See source for complete definition.</div>
+</section>
+
+<!-- 16. public.known_locations -->
+<section class="table-section" id="public-known_locations" data-table="public.known_locations" data-schema="public">
+  <div class="table-header">
+    <div class="table-name"><code>public.known_locations</code> <span class="badge badge-public">public</span> <span class="badge badge-ref">legacy</span></div>
+    <div class="table-purpose">Physical locations where GPS disconnections are expected (workshops, agencies). Legacy version.</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>autoincrement</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>nombre</code></td><td class="col-type">VARCHAR(200)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Location name</td></tr>
+      <tr><td class="col-name"><code>tipo_ubicacion</code></td><td class="col-type">VARCHAR(50)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">taller/agencia/domicilio_fiscal/otro</td></tr>
+      <tr><td class="col-name"><code>latitud</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>longitud</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>radio_metros</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>300</code></td><td class="col-fk"></td><td class="col-desc">Detection radius</td></tr>
+      <tr><td class="col-name"><code>notas</code></td><td class="col-type">TEXT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>activo</code></td><td class="col-type">BOOLEAN</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>true</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>creado_en</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>now()</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>actualizado_en</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>now()</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 17. public.gps_records -->
+<section class="table-section" id="public-gps_records" data-table="public.gps_records" data-schema="public">
+  <div class="table-header">
+    <div class="table-name"><code>public.gps_records</code> <span class="badge badge-public">public</span> <span class="badge badge-ref">legacy</span></div>
+    <div class="table-purpose">GPS records (ACC on/off events) linked to clients (legacy) for ML pipeline.</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>autoincrement</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>client_id</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"><a href="#public-clients">clients.id</a></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>device_name</code></td><td class="col-type">VARCHAR(100)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>imei</code></td><td class="col-type">VARCHAR(20)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>acc_status</code></td><td class="col-type">VARCHAR(10)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">'ACC On'/'ACC Off'</td></tr>
+      <tr><td class="col-name"><code>start_time</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>end_time</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>latitude</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>longitude</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>record_hash</code><span class="uq-icon">UQ</span></td><td class="col-type">VARCHAR(64)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Dedup hash</td></tr>
+      <tr><td class="col-name"><code>created_at</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>now()</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 18. public.detected_locations -->
+<section class="table-section" id="public-detected_locations" data-table="public.detected_locations" data-schema="public">
+  <div class="table-header">
+    <div class="table-name"><code>public.detected_locations</code> <span class="badge badge-public">public</span> <span class="badge badge-ref">legacy</span></div>
+    <div class="table-purpose">Top 3 ML-detected locations per client (legacy, FK to clients).</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>autoincrement</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>client_id</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"><a href="#public-clients">clients.id</a></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>rank</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">1=primary, 2, 3</td></tr>
+      <tr><td class="col-name"><code>location_type</code></td><td class="col-type">VARCHAR(20)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">home/work/other</td></tr>
+      <tr><td class="col-name"><code>latitude</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>longitude</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>occupancy_rate</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">0.0-1.0</td></tr>
+      <tr><td class="col-name"><code>confidence_score</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">0.0-1.0</td></tr>
+      <tr><td class="col-name"><code>confidence_level</code></td><td class="col-type">VARCHAR(10)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">low/medium/high</td></tr>
+      <tr><td class="col-name"><code>time_windows</code></td><td class="col-type">JSON</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Full KDE slots JSON</td></tr>
+      <tr><td class="col-name"><code>is_active</code></td><td class="col-type">BOOLEAN</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>true</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- Legacy group note -->
+<section class="table-section" id="public-legacy-others" data-table="public.legacy_tables" data-schema="public">
+  <div class="table-header">
+    <div class="table-name"><code>public.*</code> <span class="badge badge-public">public</span> <span class="badge badge-ref">legacy</span></div>
+    <div class="table-purpose">Legacy Spanish-column tables: <code>daily_routes</code>, <code>route_stops</code>, <code>visits</code>, <code>processing_logs</code>, <code>pipeline_cache</code>, <code>address_suggestions</code>, <code>promise_history</code>, <code>gps_status_history</code>, <code>cartera_uploads</code>, <code>assignment_history</code>, <code>collector_daily_stats</code>. These share the same structure (with Spanish column names) as their normalized <code>cob.*</code> counterparts. Being migrated.</div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════ -->
+<!--  SCHEMA: cob (Reference Tables)                 -->
+<!-- ════════════════════════════════════════════════ -->
+
+<section class="table-section" id="cob-ref-tables" data-table="cob.ref_tables" data-schema="cob">
+  <div class="table-header">
+    <div class="table-name"><code>cob.ref_*</code> <span class="badge badge-cob">cob</span> <span class="badge badge-ref">reference</span></div>
+    <div class="table-purpose">22 FK-backed lookup tables. All follow the same pattern: <code>code</code> (PK, VARCHAR) + <code>label</code> (VARCHAR, NOT NULL). They replace CHECK constraints with typed references.</div>
+  </div>
+  <div class="ref-grid">
+    <div class="ref-card"><div class="ref-card-name"><code>cob.ref_bucket</code></div><div class="ref-card-detail">B1-B10 bucket codes</div><div class="ref-card-pk">PK: VARCHAR(10) + extra: min_days, max_days</div></div>
+    <div class="ref-card"><div class="ref-card-name"><code>cob.ref_collection_status</code></div><div class="ref-card-detail">active, assigned, contacted, recovered, foreclosure, paid</div><div class="ref-card-pk">PK: VARCHAR(20)</div></div>
+    <div class="ref-card"><div class="ref-card-name"><code>cob.ref_assignment_status</code></div><div class="ref-card-detail">available, assigned, in_route, completed, promise_pending</div><div class="ref-card-pk">PK: VARCHAR(20)</div></div>
+    <div class="ref-card"><div class="ref-card-name"><code>cob.ref_gps_status</code></div><div class="ref-card-detail">online, offline, never_had</div><div class="ref-card-pk">PK: VARCHAR(20)</div></div>
+    <div class="ref-card"><div class="ref-card-name"><code>cob.ref_visit_result</code></div><div class="ref-card-detail">promesa_pago, carta_visita, no_vive_ahi, etc.</div><div class="ref-card-pk">PK: VARCHAR(50)</div></div>
+    <div class="ref-card"><div class="ref-card-name"><code>cob.ref_promise_type</code></div><div class="ref-card-detail">promesa_pago, promesa_auto_garantia, promesa_auto_definitiva</div><div class="ref-card-pk">PK: VARCHAR(30)</div></div>
+    <div class="ref-card"><div class="ref-card-name"><code>cob.ref_promise_resolution</code></div><div class="ref-card-detail">replaced, expired, fulfilled</div><div class="ref-card-pk">PK: VARCHAR(20)</div></div>
+    <div class="ref-card"><div class="ref-card-name"><code>cob.ref_location_type</code></div><div class="ref-card-detail">home, work, other</div><div class="ref-card-pk">PK: VARCHAR(20)</div></div>
+    <div class="ref-card"><div class="ref-card-name"><code>cob.ref_known_location_type</code></div><div class="ref-card-detail">taller, agencia, domicilio_fiscal, otro</div><div class="ref-card-pk">PK: VARCHAR(50)</div></div>
+    <div class="ref-card"><div class="ref-card-name"><code>cob.ref_pattern_type</code></div><div class="ref-card-detail">consistent, variable, erratic</div><div class="ref-card-pk">PK: VARCHAR(20)</div></div>
+    <div class="ref-card"><div class="ref-card-name"><code>cob.ref_confidence_level</code></div><div class="ref-card-detail">low, medium, high</div><div class="ref-card-pk">PK: VARCHAR(10)</div></div>
+    <div class="ref-card"><div class="ref-card-name"><code>cob.ref_routing_source</code></div><div class="ref-card-detail">ml_location, credit_address, approved_suggestion</div><div class="ref-card-pk">PK: VARCHAR(30)</div></div>
+    <div class="ref-card"><div class="ref-card-name"><code>cob.ref_address_type</code></div><div class="ref-card-detail">credit, home, work, reference, detected</div><div class="ref-card-pk">PK: VARCHAR(30)</div></div>
+    <div class="ref-card"><div class="ref-card-name"><code>cob.ref_address_category</code></div><div class="ref-card-detail">house, office, warehouse, unknown</div><div class="ref-card-pk">PK: VARCHAR(30)</div></div>
+    <div class="ref-card"><div class="ref-card-name"><code>cob.ref_address_status</code></div><div class="ref-card-detail">verified, not_found, moved, pending</div><div class="ref-card-pk">PK: VARCHAR(30)</div></div>
+    <div class="ref-card"><div class="ref-card-name"><code>cob.ref_phone_type</code></div><div class="ref-card-detail">mobile, home, work, reference</div><div class="ref-card-pk">PK: VARCHAR(30)</div></div>
+    <div class="ref-card"><div class="ref-card-name"><code>cob.ref_residence_alert</code></div><div class="ref-card-detail">ok, medium, high</div><div class="ref-card-pk">PK: VARCHAR(10)</div></div>
+    <div class="ref-card"><div class="ref-card-name"><code>cob.ref_suggestion_status</code></div><div class="ref-card-detail">pending, approved, rejected</div><div class="ref-card-pk">PK: VARCHAR(20)</div></div>
+    <div class="ref-card"><div class="ref-card-name"><code>cob.ref_route_status</code></div><div class="ref-card-detail">pending, in_progress, completed</div><div class="ref-card-pk">PK: VARCHAR(20)</div></div>
+    <div class="ref-card"><div class="ref-card-name"><code>cob.ref_stop_status</code></div><div class="ref-card-detail">pending, visited, skipped</div><div class="ref-card-pk">PK: VARCHAR(20)</div></div>
+    <div class="ref-card"><div class="ref-card-name"><code>cob.ref_process_status</code></div><div class="ref-card-detail">running, completed, failed</div><div class="ref-card-pk">PK: VARCHAR(20)</div></div>
+    <div class="ref-card"><div class="ref-card-name"><code>cob.ref_inspection_status</code></div><div class="ref-card-detail">pending, submitted, completed, etc.</div><div class="ref-card-pk">PK: VARCHAR(30)</div></div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════ -->
+<!--  SCHEMA: cob (Core Entities)                    -->
+<!-- ════════════════════════════════════════════════ -->
+
+<!-- 24. cob.debtors -->
+<section class="table-section" id="cob-debtors" data-table="cob.debtors" data-schema="cob">
+  <div class="table-header">
+    <div class="table-name"><code>cob.debtors</code> <span class="badge badge-cob">cob</span></div>
+    <div class="table-purpose">Person who owes money. Separated from the god-table for 3NF.</div>
+    <div class="table-meta"><span><span class="meta-label">Write/Read:</span> proj-back-cob-ia</span></div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>autoincrement</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>full_name</code></td><td class="col-type">VARCHAR(200)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>phone</code></td><td class="col-type">VARCHAR(20)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Primary phone</td></tr>
+      <tr><td class="col-name"><code>phone_secondary</code></td><td class="col-type">VARCHAR(20)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>email</code></td><td class="col-type">VARCHAR(100)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>created_at</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>now()</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>updated_at</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>now()</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 25. cob.debtor_addresses -->
+<section class="table-section" id="cob-debtor_addresses" data-table="cob.debtor_addresses" data-schema="cob">
+  <div class="table-header">
+    <div class="table-name"><code>cob.debtor_addresses</code> <span class="badge badge-cob">cob</span></div>
+    <div class="table-purpose">Multiple addresses per debtor (credit, home, work, detected).</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>autoincrement</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>debtor_id</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-debtors">cob.debtors.id</a></td><td class="col-desc">CASCADE</td></tr>
+      <tr><td class="col-name"><code>address_type</code></td><td class="col-type">VARCHAR(30)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-ref-tables">ref_address_type.code</a></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>category</code></td><td class="col-type">VARCHAR(30)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>'unknown'</code></td><td class="col-fk"><a href="#cob-ref-tables">ref_address_category.code</a></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>full_address</code></td><td class="col-type">TEXT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>latitude</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>longitude</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>is_primary</code></td><td class="col-type">BOOLEAN</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>false</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>source</code></td><td class="col-type">VARCHAR(30)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>'excel'</code></td><td class="col-fk"></td><td class="col-desc">excel/gps_detected/manual</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 26. cob.debtor_phones -->
+<section class="table-section" id="cob-debtor_phones" data-table="cob.debtor_phones" data-schema="cob">
+  <div class="table-header">
+    <div class="table-name"><code>cob.debtor_phones</code> <span class="badge badge-cob">cob</span></div>
+    <div class="table-purpose">Multiple phone numbers per debtor.</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>autoincrement</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>debtor_id</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-debtors">cob.debtors.id</a></td><td class="col-desc">CASCADE</td></tr>
+      <tr><td class="col-name"><code>phone_type</code></td><td class="col-type">VARCHAR(30)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-ref-tables">ref_phone_type.code</a></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>number</code></td><td class="col-type">VARCHAR(20)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>is_primary</code></td><td class="col-type">BOOLEAN</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>false</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>is_verified</code></td><td class="col-type">BOOLEAN</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>false</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 27. cob.vehicles -->
+<section class="table-section" id="cob-vehicles" data-table="cob.vehicles" data-schema="cob">
+  <div class="table-header">
+    <div class="table-name"><code>cob.vehicles</code> <span class="badge badge-cob">cob</span></div>
+    <div class="table-purpose">Financed vehicles.</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>autoincrement</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>usage</code></td><td class="col-type">VARCHAR(50)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">personal/taxi/cargo</td></tr>
+      <tr><td class="col-name"><code>make</code></td><td class="col-type">VARCHAR(50)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Toyota, Honda</td></tr>
+      <tr><td class="col-name"><code>model</code></td><td class="col-type">VARCHAR(50)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Corolla, Civic</td></tr>
+      <tr><td class="col-name"><code>body_type</code></td><td class="col-type">VARCHAR(50)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">sedan, pickup</td></tr>
+      <tr><td class="col-name"><code>unit_value</code></td><td class="col-type">NUMERIC(14,2)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Vehicle value</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 28. cob.contracts -->
+<section class="table-section" id="cob-contracts" data-table="cob.contracts" data-schema="cob">
+  <div class="table-header">
+    <div class="table-name"><code>cob.contracts</code> <span class="badge badge-cob">cob</span></div>
+    <div class="table-purpose">Credit contract linking debtor + vehicle.</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>autoincrement</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>contract_number</code><span class="uq-icon">UQ</span></td><td class="col-type">VARCHAR(50)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>debtor_id</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-debtors">cob.debtors.id</a></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>vehicle_id</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-vehicles">cob.vehicles.id</a></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>total_financed</code></td><td class="col-type">NUMERIC(14,2)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>credit_amount</code></td><td class="col-type">NUMERIC(14,2)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>monthly_payment</code></td><td class="col-type">NUMERIC(14,2)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>contract_date</code></td><td class="col-type">DATE</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>credit_address</code></td><td class="col-type">VARCHAR(255)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Original credit address</td></tr>
+      <tr><td class="col-name"><code>credit_lat</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>credit_lng</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 29. cob.gps_devices -->
+<section class="table-section" id="cob-gps_devices" data-table="cob.gps_devices" data-schema="cob">
+  <div class="table-header">
+    <div class="table-name"><code>cob.gps_devices</code> <span class="badge badge-cob">cob</span></div>
+    <div class="table-purpose">GPS tracking device attached to a vehicle/contract.</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>autoincrement</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>contract_id</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-contracts">cob.contracts.id</a></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>imei</code><span class="uq-icon">UQ</span></td><td class="col-type">VARCHAR(50)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Device IMEI</td></tr>
+      <tr><td class="col-name"><code>device_name</code></td><td class="col-type">VARCHAR(100)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>gps_status</code></td><td class="col-type">VARCHAR(20)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>'never_had'</code></td><td class="col-fk"><a href="#cob-ref-tables">ref_gps_status.code</a></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>has_gps</code></td><td class="col-type">BOOLEAN</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>true</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>last_seen_at</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>disconnect_lat</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Last disconnect location</td></tr>
+      <tr><td class="col-name"><code>disconnect_lng</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>known_location_id</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-known_locations">cob.known_locations.id</a></td><td class="col-desc">Known disconnect point</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 30. cob.delinquent_accounts -->
+<section class="table-section" id="cob-delinquent_accounts" data-table="cob.delinquent_accounts" data-schema="cob">
+  <div class="table-header">
+    <div class="table-name"><code>cob.delinquent_accounts</code> <span class="badge badge-cob">cob</span></div>
+    <div class="table-purpose">Delinquent (moroso) state for a contract. Central entity for collections.</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>autoincrement</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>contract_id</code><span class="uq-icon">UQ</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-contracts">cob.contracts.id</a></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>amount_owed</code></td><td class="col-type">NUMERIC(14,2)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>days_overdue</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>bucket_code</code></td><td class="col-type">VARCHAR(10)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-ref-tables">ref_bucket.code</a></td><td class="col-desc">B1-B10</td></tr>
+      <tr><td class="col-name"><code>collection_status</code></td><td class="col-type">VARCHAR(20)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>'active'</code></td><td class="col-fk"><a href="#cob-ref-tables">ref_collection_status.code</a></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>assignment_status</code></td><td class="col-type">VARCHAR(20)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>'available'</code></td><td class="col-fk"><a href="#cob-ref-tables">ref_assignment_status.code</a></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>assigned_collector_id</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-collectors">cob.collectors.id</a></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>collection_priority</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">0-100</td></tr>
+      <tr><td class="col-name"><code>promise_status</code></td><td class="col-type">VARCHAR(20)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">active/fulfilled/expired</td></tr>
+      <tr><td class="col-name"><code>promise_type</code></td><td class="col-type">VARCHAR(30)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-ref-tables">ref_promise_type.code</a></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>is_urgent</code></td><td class="col-type">BOOLEAN</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>false</code></td><td class="col-fk"></td><td class="col-desc">Migration 036</td></tr>
+      <tr><td class="col-name"><code>vehicle_recovered</code></td><td class="col-type">BOOLEAN</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>false</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>in_foreclosure</code></td><td class="col-type">BOOLEAN</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>false</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>route_lat</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">ML routing lat</td></tr>
+      <tr><td class="col-name"><code>route_lng</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">ML routing lng</td></tr>
+      <tr><td class="col-name"><code>routing_source</code></td><td class="col-type">VARCHAR(30)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-ref-tables">ref_routing_source.code</a></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>is_active</code></td><td class="col-type">BOOLEAN</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>true</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+    </tbody>
+  </table></div>
+  <div class="extra-info"><strong>Note:</strong> Condensed view. Full table has ~40 columns including promise details, foreclosure, residence analysis, and timestamps.</div>
+</section>
+
+<!-- 31. cob.ml_analysis -->
+<section class="table-section" id="cob-ml_analysis" data-table="cob.ml_analysis" data-schema="cob">
+  <div class="table-header">
+    <div class="table-name"><code>cob.ml_analysis</code> <span class="badge badge-cob">cob</span></div>
+    <div class="table-purpose">ML processing state per contract (consistency score, pattern type).</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>autoincrement</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>contract_id</code><span class="uq-icon">UQ</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-contracts">cob.contracts.id</a></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>ml_eligible</code></td><td class="col-type">BOOLEAN</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>false</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>ml_processed</code></td><td class="col-type">BOOLEAN</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>false</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>ml_version</code></td><td class="col-type">VARCHAR(20)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">e.g. 'v5.1'</td></tr>
+      <tr><td class="col-name"><code>consistency_score</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">0-100</td></tr>
+      <tr><td class="col-name"><code>pattern_type</code></td><td class="col-type">VARCHAR(20)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-ref-tables">ref_pattern_type.code</a></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>pattern_description</code></td><td class="col-type">TEXT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>total_days_with_gps</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 32. cob.detected_locations -->
+<section class="table-section" id="cob-detected_locations" data-table="cob.detected_locations" data-schema="cob">
+  <div class="table-header">
+    <div class="table-name"><code>cob.detected_locations</code> <span class="badge badge-cob">cob</span></div>
+    <div class="table-purpose">Top 3 ML-detected recurring locations per contract.</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>autoincrement</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>contract_id</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-contracts">cob.contracts.id</a></td><td class="col-desc">CASCADE</td></tr>
+      <tr><td class="col-name"><code>rank</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">1=primary, 2=secondary, 3=tertiary</td></tr>
+      <tr><td class="col-name"><code>location_type</code></td><td class="col-type">VARCHAR(20)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-ref-tables">ref_location_type.code</a></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>latitude</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>longitude</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>occupancy_rate</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">0.0-1.0</td></tr>
+      <tr><td class="col-name"><code>confidence_level</code></td><td class="col-type">VARCHAR(10)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-ref-tables">ref_confidence_level.code</a></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>time_windows</code></td><td class="col-type">JSON</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Full KDE JSON</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ════════════════════════════════════════════════ -->
+<!--  SCHEMA: cob (Operations)                       -->
+<!-- ════════════════════════════════════════════════ -->
+
+<!-- 33. cob.collectors -->
+<section class="table-section" id="cob-collectors" data-table="cob.collectors" data-schema="cob">
+  <div class="table-header">
+    <div class="table-name"><code>cob.collectors</code> <span class="badge badge-cob">cob</span></div>
+    <div class="table-purpose">Field collection agents (normalized, English columns).</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>autoincrement</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>employee_id</code><span class="uq-icon">UQ</span></td><td class="col-type">VARCHAR(20)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>full_name</code></td><td class="col-type">VARCHAR(100)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>is_active</code></td><td class="col-type">BOOLEAN</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>true</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>is_supervisor</code></td><td class="col-type">BOOLEAN</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>false</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>daily_capacity</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>15</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>current_load</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>start_lat</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>start_lng</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 34. cob.collector_buckets -->
+<section class="table-section" id="cob-collector_buckets" data-table="cob.collector_buckets" data-schema="cob">
+  <div class="table-header">
+    <div class="table-name"><code>cob.collector_buckets</code> <span class="badge badge-cob">cob</span></div>
+    <div class="table-purpose">Junction table -- which buckets a collector handles (replaces JSON column).</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>autoincrement</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>collector_id</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-collectors">cob.collectors.id</a></td><td class="col-desc">CASCADE</td></tr>
+      <tr><td class="col-name"><code>bucket_code</code></td><td class="col-type">VARCHAR(10)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-ref-tables">ref_bucket.code</a></td><td class="col-desc"></td></tr>
+    </tbody>
+  </table></div>
+  <div class="extra-info"><strong>Constraints:</strong> UNIQUE(collector_id, bucket_code)</div>
+</section>
+
+<!-- 35. cob.known_locations -->
+<section class="table-section" id="cob-known_locations" data-table="cob.known_locations" data-schema="cob">
+  <div class="table-header">
+    <div class="table-name"><code>cob.known_locations</code> <span class="badge badge-cob">cob</span></div>
+    <div class="table-purpose">Known GPS disconnection points (workshops, agencies).</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>autoincrement</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>name</code></td><td class="col-type">VARCHAR(200)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>location_type</code></td><td class="col-type">VARCHAR(50)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-ref-tables">ref_known_location_type.code</a></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>latitude</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>longitude</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>radius_meters</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>300</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>is_active</code></td><td class="col-type">BOOLEAN</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>true</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 36. cob.daily_routes -->
+<section class="table-section" id="cob-daily_routes" data-table="cob.daily_routes" data-schema="cob">
+  <div class="table-header">
+    <div class="table-name"><code>cob.daily_routes</code> <span class="badge badge-cob">cob</span></div>
+    <div class="table-purpose">Daily route for a collector with metrics.</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>autoincrement</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>collector_id</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-collectors">cob.collectors.id</a></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>route_date</code></td><td class="col-type">DATE</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>status</code></td><td class="col-type">VARCHAR(20)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>'pending'</code></td><td class="col-fk"><a href="#cob-ref-tables">ref_route_status.code</a></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>total_clients</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>estimated_distance_km</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>visits_completed</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>amount_collected</code></td><td class="col-type">NUMERIC(14,2)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+    </tbody>
+  </table></div>
+  <div class="extra-info"><strong>Constraints:</strong> UNIQUE(collector_id, route_date, generation_mode)</div>
+</section>
+
+<!-- 37. cob.route_stops -->
+<section class="table-section" id="cob-route_stops" data-table="cob.route_stops" data-schema="cob">
+  <div class="table-header">
+    <div class="table-name"><code>cob.route_stops</code> <span class="badge badge-cob">cob</span></div>
+    <div class="table-purpose">Individual stop on a daily route.</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>autoincrement</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>route_id</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-daily_routes">cob.daily_routes.id</a></td><td class="col-desc">CASCADE</td></tr>
+      <tr><td class="col-name"><code>delinquent_id</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-delinquent_accounts">cob.delinquent_accounts.id</a></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>stop_order</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>status</code></td><td class="col-type">VARCHAR(20)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>'pending'</code></td><td class="col-fk"><a href="#cob-ref-tables">ref_stop_status.code</a></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>priority_score</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>smart_score</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Migration 037</td></tr>
+      <tr><td class="col-name"><code>visit_result</code></td><td class="col-type">VARCHAR(50)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-ref-tables">ref_visit_result.code</a></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>amount_collected</code></td><td class="col-type">NUMERIC(14,2)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 38. cob.visits -->
+<section class="table-section" id="cob-visits" data-table="cob.visits" data-schema="cob">
+  <div class="table-header">
+    <div class="table-name"><code>cob.visits</code> <span class="badge badge-cob">cob</span></div>
+    <div class="table-purpose">Complete visit history with audit snapshots.</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>autoincrement</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>delinquent_id</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-delinquent_accounts">cob.delinquent_accounts.id</a></td><td class="col-desc">CASCADE</td></tr>
+      <tr><td class="col-name"><code>collector_id</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-collectors">cob.collectors.id</a></td><td class="col-desc">RESTRICT</td></tr>
+      <tr><td class="col-name"><code>visit_result</code></td><td class="col-type">VARCHAR(50)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-ref-tables">ref_visit_result.code</a></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>amount_collected</code></td><td class="col-type">NUMERIC(14,2)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>visit_lat</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>visit_lng</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>amount_owed_snapshot</code></td><td class="col-type">NUMERIC(14,2)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Snapshot at visit time</td></tr>
+      <tr><td class="col-name"><code>days_overdue_snapshot</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>photo_urls</code></td><td class="col-type">JSON</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 39. cob.promise_history -->
+<section class="table-section" id="cob-promise_history" data-table="cob.promise_history" data-schema="cob">
+  <div class="table-header">
+    <div class="table-name"><code>cob.promise_history</code> <span class="badge badge-cob">cob</span></div>
+    <div class="table-purpose">Resolved payment promises (archived when replaced/expired/fulfilled).</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>autoincrement</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>delinquent_id</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-delinquent_accounts">cob.delinquent_accounts.id</a></td><td class="col-desc">CASCADE</td></tr>
+      <tr><td class="col-name"><code>collector_id</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-collectors">cob.collectors.id</a></td><td class="col-desc">RESTRICT</td></tr>
+      <tr><td class="col-name"><code>promise_type</code></td><td class="col-type">VARCHAR(30)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-ref-tables">ref_promise_type.code</a></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>resolution</code></td><td class="col-type">VARCHAR(20)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-ref-tables">ref_promise_resolution.code</a></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>promise_amount</code></td><td class="col-type">NUMERIC(14,2)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>resolved_at</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 40. cob.address_suggestions -->
+<section class="table-section" id="cob-address_suggestions" data-table="cob.address_suggestions" data-schema="cob">
+  <div class="table-header">
+    <div class="table-name"><code>cob.address_suggestions</code> <span class="badge badge-cob">cob</span></div>
+    <div class="table-purpose">Field-reported address corrections from collectors.</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>autoincrement</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>delinquent_id</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-delinquent_accounts">cob.delinquent_accounts.id</a></td><td class="col-desc">CASCADE</td></tr>
+      <tr><td class="col-name"><code>collector_id</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-collectors">cob.collectors.id</a></td><td class="col-desc">RESTRICT</td></tr>
+      <tr><td class="col-name"><code>raw_address</code></td><td class="col-type">TEXT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">As written by collector</td></tr>
+      <tr><td class="col-name"><code>status</code></td><td class="col-type">VARCHAR(20)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>'pending'</code></td><td class="col-fk"><a href="#cob-ref-tables">ref_suggestion_status.code</a></td><td class="col-desc"></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 41-42. GPS records and status history -->
+<section class="table-section" id="cob-gps_records" data-table="cob.gps_records" data-schema="cob">
+  <div class="table-header">
+    <div class="table-name"><code>cob.gps_records</code> <span class="badge badge-cob">cob</span></div>
+    <div class="table-purpose">GPS records linked to device (not client) -- normalized version. FK to cob.gps_devices.id.</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>autoincrement</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>device_id</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-gps_devices">cob.gps_devices.id</a></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>acc_status</code></td><td class="col-type">VARCHAR(10)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>start_time</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>latitude</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>longitude</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>record_hash</code><span class="uq-icon">UQ</span></td><td class="col-type">VARCHAR(64)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Dedup hash</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="table-section" id="cob-gps_status_history" data-table="cob.gps_status_history" data-schema="cob">
+  <div class="table-header">
+    <div class="table-name"><code>cob.gps_status_history</code> <span class="badge badge-cob">cob</span></div>
+    <div class="table-purpose">Audit trail of GPS device status changes.</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>autoincrement</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>device_id</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-gps_devices">cob.gps_devices.id</a></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>previous_status</code></td><td class="col-type">VARCHAR(20)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>new_status</code></td><td class="col-type">VARCHAR(20)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>changed_at</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 49. cob.bucket_rules -->
+<section class="table-section" id="cob-bucket_rules" data-table="cob.bucket_rules" data-schema="cob">
+  <div class="table-header">
+    <div class="table-name"><code>cob.bucket_rules</code> <span class="badge badge-cob">cob</span></div>
+    <div class="table-purpose">Collection strategy rules per bucket (B1-B10). Configurable weights, promise rules, GPS requirements.</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>bucket_code</code><span class="pk-icon">PK</span></td><td class="col-type">VARCHAR(10)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-ref-tables">ref_bucket.code</a></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>strategy</code></td><td class="col-type">VARCHAR(50)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Strategy name</td></tr>
+      <tr><td class="col-name"><code>color</code></td><td class="col-type">VARCHAR(10)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">UI color</td></tr>
+      <tr><td class="col-name"><code>weight_days_overdue</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>0.25</code></td><td class="col-fk"></td><td class="col-desc">Priority weight</td></tr>
+      <tr><td class="col-name"><code>weight_amount_owed</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>0.25</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>promise_max_days</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>promise_requires_guarantee</code></td><td class="col-type">BOOLEAN</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>false</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>gps_required_for_visit</code></td><td class="col-type">BOOLEAN</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>false</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>opportunistic_enabled</code></td><td class="col-type">BOOLEAN</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>false</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 50. cob.client_promise_overrides -->
+<section class="table-section" id="cob-client_promise_overrides" data-table="cob.client_promise_overrides" data-schema="cob">
+  <div class="table-header">
+    <div class="table-name"><code>cob.client_promise_overrides</code> <span class="badge badge-cob">cob</span></div>
+    <div class="table-purpose">Supervisor override of promise rules for a specific client.</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>autoincrement</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>delinquent_id</code><span class="uq-icon">UQ</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-delinquent_accounts">cob.delinquent_accounts.id</a></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>override_reason</code></td><td class="col-type">TEXT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>expires_at</code></td><td class="col-type">DATE</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ════════════════════════════════════════════════ -->
+<!--  SCHEMA: cob (Analytics, Tracking, Audit)       -->
+<!-- ════════════════════════════════════════════════ -->
+
+<!-- 51. cob.in_app_alerts -->
+<section class="table-section" id="cob-in_app_alerts" data-table="cob.in_app_alerts" data-schema="cob">
+  <div class="table-header">
+    <div class="table-name"><code>cob.in_app_alerts</code> <span class="badge badge-cob">cob</span></div>
+    <div class="table-purpose">In-app notifications for collectors and supervisors (promise expiring, urgent accounts).</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>autoincrement</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>recipient_type</code></td><td class="col-type">VARCHAR(20)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">'collector'/'supervisor'</td></tr>
+      <tr><td class="col-name"><code>alert_type</code></td><td class="col-type">VARCHAR(30)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">promise_expiring/expired/urgent_account</td></tr>
+      <tr><td class="col-name"><code>priority</code></td><td class="col-type">VARCHAR(10)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>'normal'</code></td><td class="col-fk"></td><td class="col-desc">low/normal/high/urgent</td></tr>
+      <tr><td class="col-name"><code>is_read</code></td><td class="col-type">BOOLEAN</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>false</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 52. cob.collection_data -->
+<section class="table-section" id="cob-collection_data" data-table="cob.collection_data" data-schema="cob">
+  <div class="table-header">
+    <div class="table-name"><code>cob.collection_data</code> <span class="badge badge-cob">cob</span></div>
+    <div class="table-purpose">EAV (Entity-Attribute-Value) table for dynamic Excel columns that don't fit the schema.</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>autoincrement</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>contract_id</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-contracts">cob.contracts.id</a></td><td class="col-desc">CASCADE</td></tr>
+      <tr><td class="col-name"><code>data_key</code></td><td class="col-type">VARCHAR(100)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Column name from Excel</td></tr>
+      <tr><td class="col-name"><code>data_value</code></td><td class="col-type">TEXT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Value</td></tr>
+    </tbody>
+  </table></div>
+  <div class="extra-info"><strong>Constraints:</strong> UNIQUE(contract_id, data_key)</div>
+</section>
+
+<!-- 53. cob.collector_positions -->
+<section class="table-section" id="cob-collector_positions" data-table="cob.collector_positions" data-schema="cob">
+  <div class="table-header">
+    <div class="table-name"><code>cob.collector_positions</code> <span class="badge badge-cob">cob</span></div>
+    <div class="table-purpose">Real-time GPS position of field collectors (one row per collector, upsert).</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>autoincrement</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>collector_id</code><span class="uq-icon">UQ</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-collectors">cob.collectors.id</a></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>latitude</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>longitude</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>accuracy</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">GPS accuracy meters</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 54. cob.vehicle_latest_positions -->
+<section class="table-section" id="cob-vehicle_latest_positions" data-table="cob.vehicle_latest_positions" data-schema="cob">
+  <div class="table-header">
+    <div class="table-name"><code>cob.vehicle_latest_positions</code> <span class="badge badge-cob">cob</span></div>
+    <div class="table-purpose">Latest GPS position per vehicle IMEI from client accounts (Datamovil 1-5). Synced every 60s from public.vehicle_status_history. ~3,600 rows.</div>
+    <div class="table-meta"><span><span class="meta-label">Size:</span> ~3,600 rows</span></div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>autoincrement</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>imei</code><span class="uq-icon">UQ</span></td><td class="col-type">VARCHAR(50)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>latitude</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>longitude</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>is_online</code></td><td class="col-type">BOOLEAN</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>gps_timestamp</code></td><td class="col-type">TIMESTAMPTZ</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 55. cob.collector_devices -->
+<section class="table-section" id="cob-collector_devices" data-table="cob.collector_devices" data-schema="cob">
+  <div class="table-header">
+    <div class="table-name"><code>cob.collector_devices</code> <span class="badge badge-cob">cob</span></div>
+    <div class="table-purpose">Maps GPS tracking devices (from UtilMovil5) to collectors for field tracking.</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>autoincrement</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>collector_id</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-collectors">cob.collectors.id</a></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>device_name</code><span class="uq-icon">UQ</span></td><td class="col-type">VARCHAR(100)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>imei</code></td><td class="col-type">VARCHAR(50)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>is_active</code></td><td class="col-type">BOOLEAN</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>true</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 56. cob.gps_frequency_locations -->
+<section class="table-section" id="cob-gps_frequency_locations" data-table="cob.gps_frequency_locations" data-schema="cob">
+  <div class="table-header">
+    <div class="table-name"><code>cob.gps_frequency_locations</code> <span class="badge badge-cob">cob</span></div>
+    <div class="table-purpose">Most frequented GPS locations per device per 2-hour time block. Computed twice daily.</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>autoincrement</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>imei</code></td><td class="col-type">VARCHAR(50)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>time_block</code></td><td class="col-type">VARCHAR(5)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">'06-08', '08-10', etc.</td></tr>
+      <tr><td class="col-name"><code>rank</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">1 or 2</td></tr>
+      <tr><td class="col-name"><code>probability</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">visit_days / total_days</td></tr>
+    </tbody>
+  </table></div>
+  <div class="extra-info"><strong>Constraints:</strong> UNIQUE(imei, time_block, rank)</div>
+</section>
+
+<!-- 57. cob.route_strategy_config -->
+<section class="table-section" id="cob-route_strategy_config" data-table="cob.route_strategy_config" data-schema="cob">
+  <div class="table-header">
+    <div class="table-name"><code>cob.route_strategy_config</code> <span class="badge badge-cob">cob</span></div>
+    <div class="table-purpose">Centralized JSONB config for route engine weights, scoring, and rules.</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>autoincrement</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>name</code><span class="uq-icon">UQ</span></td><td class="col-type">VARCHAR(100)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Config name</td></tr>
+      <tr><td class="col-name"><code>config</code></td><td class="col-type">JSONB</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Full configuration JSON</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 58. cob.portfolio_daily_snapshots -->
+<section class="table-section" id="cob-portfolio_daily_snapshots" data-table="cob.portfolio_daily_snapshots" data-schema="cob">
+  <div class="table-header">
+    <div class="table-name"><code>cob.portfolio_daily_snapshots</code> <span class="badge badge-cob">cob</span></div>
+    <div class="table-purpose">Daily snapshot of portfolio KPIs for historical comparison and trending.</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>autoincrement</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>snapshot_date</code><span class="uq-icon">UQ</span></td><td class="col-type">DATE</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>total_accounts</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>total_debt</code></td><td class="col-type">NUMERIC(14,2)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>effectiveness_pct</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>bucket_breakdown</code></td><td class="col-type">JSON</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>[]</code></td><td class="col-fk"></td><td class="col-desc">Per-bucket stats</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 59. cob.gps_daily_mileage -->
+<section class="table-section" id="cob-gps_daily_mileage" data-table="cob.gps_daily_mileage" data-schema="cob">
+  <div class="table-header">
+    <div class="table-name"><code>cob.gps_daily_mileage</code> <span class="badge badge-cob">cob</span></div>
+    <div class="table-purpose">Daily mileage aggregation per GPS device.</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>autoincrement</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>imei</code></td><td class="col-type">VARCHAR(20)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>date</code></td><td class="col-type">DATE</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>daily_km</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>0.0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>max_speed</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+    </tbody>
+  </table></div>
+  <div class="extra-info"><strong>Constraints:</strong> UNIQUE(imei, date)</div>
+</section>
+
+<!-- 60. cob.vehicle_inspections -->
+<section class="table-section" id="cob-vehicle_inspections" data-table="cob.vehicle_inspections" data-schema="cob">
+  <div class="table-header">
+    <div class="table-name"><code>cob.vehicle_inspections</code> <span class="badge badge-cob">cob</span></div>
+    <div class="table-purpose">AI vehicle inspection results via Inspekt Labs.</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>id</code><span class="pk-icon">PK</span></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>autoincrement</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>delinquent_id</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-delinquent_accounts">cob.delinquent_accounts.id</a></td><td class="col-desc">CASCADE</td></tr>
+      <tr><td class="col-name"><code>collector_id</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"><a href="#cob-collectors">cob.collectors.id</a></td><td class="col-desc">RESTRICT</td></tr>
+      <tr><td class="col-name"><code>case_id</code><span class="uq-icon">UQ</span></td><td class="col-type">VARCHAR(100)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc">Inspekt Labs case ID</td></tr>
+      <tr><td class="col-name"><code>status</code></td><td class="col-type">VARCHAR(30)</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>'pending'</code></td><td class="col-fk"><a href="#cob-ref-tables">ref_inspection_status.code</a></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>photos</code></td><td class="col-type">JSONB</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>[]</code></td><td class="col-fk"></td><td class="col-desc">S3 photo URLs</td></tr>
+      <tr><td class="col-name"><code>total_damaged_parts</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>damaged_parts</code></td><td class="col-type">JSONB</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>[]</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>raw_result</code></td><td class="col-type">JSONB</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"><code>{}</code></td><td class="col-fk"></td><td class="col-desc">Full Inspekt Labs response</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 61. cob.gps_device_summary -->
+<section class="table-section" id="cob-gps_device_summary" data-table="cob.gps_device_summary" data-schema="cob">
+  <div class="table-header">
+    <div class="table-name"><code>cob.gps_device_summary</code> <span class="badge badge-cob">cob</span></div>
+    <div class="table-purpose">Accumulated GPS summary per device -- ONE row per IMEI, updated hourly.</div>
+  </div>
+  <div class="data-table-wrap"><table class="data-table">
+    <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>FK</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="col-name"><code>imei</code><span class="pk-icon">PK</span></td><td class="col-type">VARCHAR(20)</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>total_km</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>0.0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>total_days_with_data</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>total_trips</code></td><td class="col-type">INTEGER</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>avg_daily_km</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>max_speed_ever</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="yes">YES</span></td><td class="col-default"></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>current_month_km</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>0.0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+      <tr><td class="col-name"><code>prev_month_km</code></td><td class="col-type">FLOAT</td><td class="col-nullable"><span class="no">NO</span></td><td class="col-default"><code>0.0</code></td><td class="col-fk"></td><td class="col-desc"></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- Audit tables group -->
+<section class="table-section" id="cob-audit-tables" data-table="cob.audit_tables" data-schema="cob">
+  <div class="table-header">
+    <div class="table-name"><code>cob.*</code> <span class="badge badge-cob">cob</span> <span class="badge badge-ref">audit</span></div>
+    <div class="table-purpose">Audit and staging tables: <code>assignment_history</code> (collector assignment log), <code>cartera_uploads</code> (Excel upload log), <code>cartera_staging</code> (staging rows before processing), <code>processing_logs</code> (ML pipeline runs), <code>pipeline_cache</code> (cached ML results per contract/day), <code>collector_daily_stats</code> (daily performance per collector).</div>
+  </div>
+</section>
+
+<!-- DB Function -->
+<section class="table-section" id="public-haversine" data-table="public.haversine_meters" data-schema="public">
+  <div class="table-header">
+    <div class="table-name"><code>public.haversine_meters()</code> <span class="badge badge-public">function</span></div>
+    <div class="table-purpose">Calculates distance in meters between two lat/lng points using the haversine formula. Used by the state differential trigger. Signature: <code>haversine_meters(lat1, lon1, lat2, lon2) -> DOUBLE PRECISION</code></div>
+  </div>
+</section>
+
+</main>
+
+<script>
+// ─── SEARCH ───
+const searchInput = document.getElementById('searchInput');
+const sections = document.querySelectorAll('.table-section');
+const sidebarLinks = document.querySelectorAll('.sidebar-link');
+const noResults = document.getElementById('noResults');
+
+searchInput.addEventListener('input', function() {
+  const q = this.value.toLowerCase().trim();
+  let visible = 0;
+  sections.forEach(s => {
+    if (!q) { s.classList.remove('hidden'); visible++; return; }
+    const text = s.textContent.toLowerCase();
+    const tableName = (s.dataset.table || '').toLowerCase();
+    const match = text.includes(q) || tableName.includes(q);
+    s.classList.toggle('hidden', !match);
+    if (match) visible++;
+  });
+  noResults.classList.toggle('visible', visible === 0);
+  // Update sidebar
+  sidebarLinks.forEach(link => {
+    if (!q) { link.classList.remove('hidden'); return; }
+    const href = link.getAttribute('href');
+    if (!href) return;
+    const target = document.querySelector(href);
+    link.classList.toggle('hidden', !target || target.classList.contains('hidden'));
+  });
+});
+
+// ─── ACTIVE SIDEBAR ───
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      sidebarLinks.forEach(l => l.classList.remove('active'));
+      const link = document.querySelector(`.sidebar-link[href="#${e.target.id}"]`);
+      if (link) link.classList.add('active');
+    }
+  });
+}, { rootMargin: '-80px 0px -70% 0px' });
+sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
