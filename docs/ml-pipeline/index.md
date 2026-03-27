@@ -139,5 +139,6 @@ pie title Ventanas de Tiempo Detectadas
 | 3 | [Ventanas de Tiempo](./ventanas) | KDE + LightGBM |
 | 4 | [Prioridad de Cobranza](./prioridad) | XGBoost + reglas compuestas |
 | 5 | [Optimización de Rutas](./rutas) | OR-Tools VRPTW |
+| 5+ | [**Rutas — Referencia Completa**](./rutas-detalle) | Todas las reglas, ponderaciones, scoring multi-nivel, re-optimizacion en tiempo real |
 | Ref | [Configuración Completa](./configuracion) | Todos los parámetros |
 | Ref | [Detección de Cambios](./cambios) | Cambios de comportamiento |

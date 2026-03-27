@@ -122,6 +122,7 @@ export default defineConfig({
             { text: 'Stage 3: Ventanas de Tiempo', link: '/ml-pipeline/ventanas' },
             { text: 'Stage 4: Prioridad de Cobranza', link: '/ml-pipeline/prioridad' },
             { text: 'Stage 5: Optimizacion de Rutas', link: '/ml-pipeline/rutas' },
+            { text: 'Rutas — Referencia Completa', link: '/ml-pipeline/rutas-detalle' },
             { text: 'Configuracion y Pesos', link: '/ml-pipeline/configuracion' },
             { text: 'Deteccion de Cambios', link: '/ml-pipeline/cambios' },
           ]
