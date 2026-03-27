@@ -1,0 +1,25 @@
+{
+  "name": "gps-platform-docs",
+  "version": "1.0.0",
+  "description": "Documentacion completa del ecosistema AgentsMX",
+  "scripts": {
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/multiagents-fer/gps-platform-docs.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/multiagents-fer/gps-platform-docs/issues"
+  },
+  "homepage": "https://github.com/multiagents-fer/gps-platform-docs#readme",
+  "devDependencies": {
+    "vitepress": "^1.6.4"
+  }
+}
