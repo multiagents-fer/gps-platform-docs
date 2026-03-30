@@ -34,6 +34,8 @@ export default defineConfig({
       {
         text: 'Guia de Usuario',
         items: [
+          { text: 'Manual PWA Cobrador', link: '/guia-usuario/manual-pwa' },
+          { text: 'Manual Supervisor', link: '/guia-usuario/manual-supervisor' },
           { text: 'Cobranza Inteligente', link: '/guia-usuario/cobranza/' },
           { text: 'Marketplace Dashboard', link: '/guia-usuario/marketplace/' },
         ]
@@ -52,6 +54,16 @@ export default defineConfig({
     ],
 
     sidebar: {
+      '/guia-usuario/manual-': [
+        {
+          text: 'Guia de Usuario',
+          items: [
+            { text: 'Introduccion', link: '/guia-usuario/' },
+            { text: 'Manual PWA Cobrador', link: '/guia-usuario/manual-pwa' },
+            { text: 'Manual Supervisor', link: '/guia-usuario/manual-supervisor' },
+          ]
+        }
+      ],
       '/guia-usuario/cobranza/': [
         {
           text: 'Cobranza Inteligente',
