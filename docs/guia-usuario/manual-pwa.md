@@ -330,7 +330,139 @@ El sistema analiza los datos del GPS del vehiculo para determinar en que horario
 
 ---
 
-## 8. Tips y Solucion de Problemas
+## 8. Sistema GPS — Como Funciona
+
+El sistema utiliza **dos fuentes de GPS independientes** que trabajan juntas para maximizar la eficiencia de la cobranza.
+
+### Fuente 1: GPS del Celular del Cobrador
+
+Tu celular envia tu ubicacion al sistema mientras tienes la app abierta y la ruta iniciada.
+
+```mermaid
+flowchart LR
+    A["Tu celular detecta tu posicion via GPS satelital"]:::blue
+    A --> B["La app envia tu ubicacion al servidor cada 15 segundos"]:::blue
+    B --> C["El servidor actualiza tu posicion en el mapa del supervisor"]:::green
+    C --> D["El sistema calcula si estas cerca de algun cliente"]:::green
+    D --> E["Si estas en rango: te envia una alerta de proximidad"]:::alert
+
+    classDef blue fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a5f
+    classDef green fill:#d1fae5,stroke:#059669,stroke-width:2px,color:#064e3b
+    classDef alert fill:#fef9c3,stroke:#ca8a04,stroke-width:2px,color:#713f12
+```
+
+| Caracteristica | Detalle |
+|---------------|---------|
+| Frecuencia de envio | Cada 15 segundos (solo si te moviste mas de 10 metros) |
+| Precision | 5-15 metros (exterior), 20-50 metros (interior) |
+| Consumo de bateria | Moderado — se recomienda cargar el celular antes de salir |
+| Requiere | GPS activado + permisos de ubicacion en el navegador |
+| Se usa para | Iniciar ruta, reordenar paradas, alertas de proximidad, tracking en mapa del supervisor |
+
+**Cuando se activa:**
+1. Al presionar **"Iniciar ruta"** — toma tu posicion para reordenar paradas
+2. **Durante toda la ruta** — envia tu posicion cada 15 segundos al servidor
+3. **Al registrar una visita** — adjunta tu ubicacion GPS como evidencia
+
+**Cuando NO funciona bien:**
+- Dentro de edificios con techo de concreto
+- En sotanos o estacionamientos subterraneos
+- Con el GPS del celular apagado
+- Sin permisos de ubicacion en el navegador
+
+### Fuente 2: GPS del Vehiculo del Cliente (Moroso)
+
+Cada vehiculo financiado tiene un dispositivo GPS fisico instalado (SeeWorld/WhatsGPS). Este GPS reporta la ubicacion del vehiculo al sistema de forma independiente.
+
+```mermaid
+flowchart LR
+    A["Dispositivo GPS fisico instalado en el vehiculo del cliente"]:::blue
+    A --> B["Reporta ubicacion del vehiculo al servidor cada 60 segundos"]:::blue
+    B --> C["El sistema almacena la posicion en vehicle_latest_positions"]:::green
+    C --> D["ML Pipeline analiza el historial para detectar residencia y ventanas horarias"]:::amber
+    D --> E["El cobrador recibe: direccion de casa detectada + mejor horario para visitar"]:::green
+
+    classDef blue fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a5f
+    classDef green fill:#d1fae5,stroke:#059669,stroke-width:2px,color:#064e3b
+    classDef amber fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#78350f
+```
+
+| Caracteristica | Detalle |
+|---------------|---------|
+| Dispositivo | SeeWorld / WhatsGPS (fisico, instalado en el vehiculo) |
+| Frecuencia | Cada 60 segundos (cuando el vehiculo esta encendido) |
+| Cobertura | 4,000+ vehiculos rastreados en 3 estados (NL, Coahuila, Tamaulipas) |
+| Precision | 3-10 metros (GPS satelital puro, sin depender del celular) |
+| Estado | Online (vehiculo encendido o ACC activo) / Offline (vehiculo apagado) |
+| Se usa para | Detectar residencia, ventanas horarias, verificar si el vehiculo esta en casa |
+
+**Que informacion te da como cobrador:**
+- **Marcador verde** en el mapa = el GPS del vehiculo dice que esta en casa ahora
+- **Ventana horaria** = el sistema analizo meses de datos GPS y sabe a que hora llega a casa
+- **Direccion detectada** = donde el vehiculo pernocta con mayor frecuencia (puede diferir del credito)
+- **Alerta "Vehiculo en casa"** = el vehiculo acaba de llegar a la residencia detectada
+
+### Como trabajan juntos los dos GPS
+
+```mermaid
+flowchart TD
+    subgraph COBRADOR["GPS DEL COBRADOR (tu celular)"]
+        A1["Tu posicion actual"]:::blue
+    end
+
+    subgraph CLIENTE["GPS DEL VEHICULO (dispositivo fisico)"]
+        B1["Posicion del vehiculo del cliente"]:::amber
+    end
+
+    A1 --> C["El sistema calcula la DISTANCIA entre tu posicion y la del vehiculo del cliente"]:::green
+    B1 --> C
+    C --> D{"Esta el vehiculo en la residencia detectada y tu estas a menos de 1 km?"}:::decision
+    D -->|"Si"| E["ALERTA: Vehiculo en casa — Tu celular vibra con la notificacion"]:::alert
+    D -->|"No"| F["Sin alerta — el sistema sigue monitoreando cada 15 segundos"]:::gray
+
+    classDef blue fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a5f
+    classDef amber fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#78350f
+    classDef green fill:#d1fae5,stroke:#059669,stroke-width:2px,color:#064e3b
+    classDef alert fill:#fef9c3,stroke:#ca8a04,stroke-width:2px,color:#713f12
+    classDef gray fill:#f1f5f9,stroke:#94a3b8,stroke-width:1px,color:#475569
+    classDef decision fill:#f0f9ff,stroke:#0284c7,stroke-width:2px,color:#0c4a6e
+```
+
+### Fallback GPS: Que pasa si tu celular no tiene senal
+
+```mermaid
+flowchart TD
+    A["Presionas Iniciar Ruta"]:::blue
+    A --> B{"Tu celular obtiene GPS en 3 segundos?"}:::decision
+    B -->|"Si"| C["Usa las coordenadas de tu celular para reordenar la ruta"]:::green
+    B -->|"No — timeout"| D["El sistema busca el GPS del vehiculo asignado al cobrador"]:::amber
+    D --> E{"El GPS vehicular tiene posicion reciente?"}:::decision
+    E -->|"Si"| F["Usa las coordenadas del vehiculo para reordenar la ruta"]:::green
+    E -->|"No"| G["Error: No se pudo determinar ubicacion — verificar GPS"]:::red
+
+    classDef blue fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a5f
+    classDef green fill:#d1fae5,stroke:#059669,stroke-width:2px,color:#064e3b
+    classDef amber fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#78350f
+    classDef red fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#7f1d1d
+    classDef decision fill:#f0f9ff,stroke:#0284c7,stroke-width:2px,color:#0c4a6e
+```
+
+### Resumen de los dos GPS
+
+| Aspecto | GPS Celular (Cobrador) | GPS Vehiculo (Cliente) |
+|---------|:---:|:---:|
+| Dispositivo | Tu telefono celular | Aparato fisico en el vehiculo |
+| Quien lo porta | Tu (cobrador) | El cliente (moroso) |
+| Para que se usa | Saber DONDE ESTAS TU | Saber DONDE ESTA EL CLIENTE |
+| Frecuencia | Cada 15 seg (app abierta) | Cada 60 seg (siempre) |
+| Depende de | Bateria del celular + internet | Bateria del vehiculo |
+| Funciona sin internet | No | Si (el dispositivo almacena y envia despues) |
+| Precision | 5-50 metros | 3-10 metros |
+| Se activa cuando | Inicias ruta en la app | Siempre (24/7) |
+
+---
+
+## 9. Tips y Solucion de Problemas
 
 ### Problemas frecuentes
 

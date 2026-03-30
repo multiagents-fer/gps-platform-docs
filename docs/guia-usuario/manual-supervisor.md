@@ -368,7 +368,115 @@ Los niveles de confianza se muestran en la vista 360 de cada cliente y afectan l
 
 ---
 
-## 9. Reglas de Negocio por Bucket
+## 9. Sistema GPS — Vision del Supervisor
+
+Como supervisor, tienes acceso a toda la infraestructura GPS del sistema. Aqui se explica como funciona cada componente.
+
+### Arquitectura GPS Completa
+
+```mermaid
+flowchart TD
+    subgraph VEHICULOS["GPS VEHICULOS (4,000+ dispositivos)"]
+        V1["Dispositivo GPS fisico SeeWorld/WhatsGPS instalado en cada vehiculo financiado"]:::blue
+        V1 --> V2["Reporta posicion cada 60 segundos al servidor central"]:::blue
+        V2 --> V3["Se almacena en vehicle_latest_positions y TimescaleDB"]:::blue
+    end
+
+    subgraph COBRADORES["GPS COBRADORES (9 celulares)"]
+        C1["PWA en el celular del cobrador con GPS activado"]:::amber
+        C1 --> C2["Envia posicion cada 15 segundos durante la ruta"]:::amber
+        C2 --> C3["Se almacena en collector_positions"]:::amber
+    end
+
+    subgraph ML["PIPELINE ML — Analisis"]
+        M1["HDBSCAN: detecta residencia del cliente analizando donde pernocta el vehiculo"]:::green
+        M2["KDE: detecta ventanas horarias analizando a que hora llega y sale"]:::green
+        M3["Scoring: calcula probabilidad de encontrar al cliente en cada horario"]:::green
+        M1 --> M2 --> M3
+    end
+
+    subgraph ROUTING["SMART ROUTE ENGINE"]
+        R1["Combina posicion del cobrador + posicion del vehiculo + ventanas ML"]:::purple
+        R2["Genera ruta optimizada priorizando paradas en ventana horaria activa"]:::purple
+        R3["Re-optimiza cada 5 minutos si cambian las condiciones"]:::purple
+        R1 --> R2 --> R3
+    end
+
+    V3 --> M1
+    V3 --> R1
+    C3 --> R1
+    M3 --> R1
+
+    classDef blue fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a5f
+    classDef amber fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#78350f
+    classDef green fill:#d1fae5,stroke:#059669,stroke-width:2px,color:#064e3b
+    classDef purple fill:#f3e8ff,stroke:#7c3aed,stroke-width:2px,color:#4c1d95
+```
+
+### GPS de Vehiculos — Lo que ve el supervisor
+
+| Dato | Donde verlo | Para que sirve |
+|------|-------------|---------------|
+| Vehiculo online/offline | Mapa en vivo + detalle de cliente | Saber si el vehiculo tiene GPS activo |
+| Ultima posicion conocida | Mapa en vivo | Localizar el vehiculo en tiempo real |
+| Residencia detectada (ML) | Detalle de cliente, seccion ML | Saber donde vive realmente el moroso |
+| Ventanas horarias | Detalle de cliente, seccion ventanas | Saber a que hora visitar |
+| Confianza de deteccion | Pipeline ML, resultados | Alta, Media o Baja — que tan seguro es el dato |
+| Trail vehicular | Reportes GPS | Historial de movimientos del vehiculo |
+
+### GPS de Cobradores — Lo que ve el supervisor
+
+| Dato | Donde verlo | Para que sirve |
+|------|-------------|---------------|
+| Posicion actual del cobrador | Mapa en vivo | Monitorear donde esta cada cobrador |
+| Ruta recorrida | Reportes por cobrador, trail | Verificar que el cobrador fue a las direcciones |
+| Hora de inicio de ruta | Estado de rutas | Verificar puntualidad |
+| Distancia recorrida | Reporte diario | Medir eficiencia del cobrador |
+| Visitas con GPS | Historial de visitas | Evidencia de que el cobrador estuvo en el domicilio |
+
+### Flujo de Datos GPS — De la fuente al cobrador
+
+```mermaid
+flowchart LR
+    A["GPS fisico en vehiculo del cliente"]:::blue
+    A -->|"Cada 60s"| B["Backend: vehicle_latest_positions"]:::blue
+    B -->|"Semanal"| C["ML Pipeline: detecta residencia + ventanas"]:::green
+    C --> D["detected_locations + time_windows en BD"]:::green
+    D -->|"Diario 6AM"| E["Generador de rutas: usa ventanas para ordenar paradas"]:::amber
+    E --> F["Ruta optimizada aparece en la PWA del cobrador"]:::amber
+    F -->|"Cada 5 min"| G["Smart Optimizer: re-ordena si el vehiculo aparece en casa"]:::purple
+
+    classDef blue fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a5f
+    classDef green fill:#d1fae5,stroke:#059669,stroke-width:2px,color:#064e3b
+    classDef amber fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#78350f
+    classDef purple fill:#f3e8ff,stroke:#7c3aed,stroke-width:2px,color:#4c1d95
+```
+
+### Estadisticas del GPS
+
+| Metrica | Valor actual |
+|---------|:---:|
+| Vehiculos con GPS | 4,000+ |
+| Cuentas GPS (Datamovil) | 4 cuentas (1000+499+1000+1000) |
+| Morosos con GPS activo | 172 de 794 (21.7%) |
+| Residencias detectadas | 165 de 172 (96%) |
+| Cobradores con tracking | 9 activos |
+| Frecuencia vehiculos | Cada 60 segundos |
+| Frecuencia cobradores | Cada 15 segundos |
+
+### Situaciones comunes del GPS
+
+| Situacion | Que indica | Que hacer |
+|-----------|-----------|-----------|
+| Vehiculo online en casa | El moroso esta probablemente en su domicilio | Priorizar esta visita — alta probabilidad de contacto |
+| Vehiculo online pero lejos | El moroso salio de casa | Esperar a que regrese o visitar en la ventana horaria |
+| Vehiculo offline >7 dias | GPS desconectado, posible bateria desconectada | Marcar como visita prioritaria para verificar fisicamente |
+| Vehiculo en taller conocido | GPS detecta ubicacion en taller de adjudicacion | No visitar — vehiculo en proceso de adjudicacion |
+| Cobrador sin GPS | Celular sin senal o GPS apagado | El sistema usa la posicion del GPS del vehiculo como fallback |
+
+---
+
+## 10. Reglas de Negocio por Bucket
 
 Cada bucket tiene reglas especificas que determinan la frecuencia de visitas, promesas permitidas y montos minimos.
 
