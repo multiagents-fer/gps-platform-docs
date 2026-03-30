@@ -2,9 +2,76 @@
 
 Manual de uso del dashboard de supervision para la plataforma de Cobranza Inteligente. Esta guia cubre todas las funciones disponibles en **time.agentsmx.com/dashboard/**.
 
+## Flujo de Operacion Diaria del Supervisor
+
+```mermaid
+flowchart TB
+    A["Login\nSUP-CENTRAL"] --> B["Dashboard\nKPIs Generales"]
+    B --> C{"Asignar\nAgenda?"}
+    C -->|"Si"| D["Wizard de\nAsignacion"]
+    C -->|"No (auto 6AM)"| E["Monitoreo\nen Vivo"]
+
+    D --> D1["1. Seleccionar\nBucket B1-B10"]
+    D1 --> D2["2. Generar\nPaquetes K-Means"]
+    D2 --> D3["3. Elegir\nEstrategia"]
+    D3 --> D4["4. Asignar a\nCobrador"]
+    D4 --> E
+
+    E --> E1["Mapa en vivo\ncon cobradores"]
+    E --> E2["Estado de\nrutas activas"]
+    E --> E3["Alertas de\nre-optimizacion"]
+
+    B --> F["Reportes"]
+    F --> F1["Ejecutivo"]
+    F --> F2["Por Cobrador"]
+    F --> F3["GPS / ML"]
+    F --> F4["Promesas"]
+
+    B --> G["Pipeline ML"]
+    G --> G1["Ejecutar\ndeteccion"]
+    G1 --> G2["Ver residencias\ndetectadas"]
+    G2 --> G3["Ver ventanas\nhorarias"]
+
+    style A fill:#eff6ff,stroke:#3b82f6
+    style D fill:#fef3c7,stroke:#f59e0b
+    style E fill:#ecfdf5,stroke:#10b981
+    style F fill:#f3e8ff,stroke:#8b5cf6
+    style G fill:#fef9c3,stroke:#eab308
+```
+
+## Ventajas del Sistema
+
+| Ventaja | Descripcion |
+|---------|-------------|
+| Asignacion inteligente | K-Means agrupa morosos por zona geografica automaticamente |
+| Rutas optimizadas | Dos modos: por reglas de bucket o por IA (K-Means + scoring) |
+| Monitoreo en tiempo real | Ubicacion de cobradores y estado de visitas en vivo |
+| ML Pipeline | Deteccion automatica de residencias y ventanas horarias con GPS |
+| Scoring multi-nivel | 3 niveles de puntuacion (deuda, GPS, subfactores) con multiplicadores |
+| Re-optimizacion automatica | Cada 5 minutos el sistema reordena paradas basado en condiciones actuales |
+
+## Diferencias Supervisor vs Cobrador
+
+| Funcion | Supervisor | Cobrador |
+|---------|:---:|:---:|
+| Dashboard con KPIs | Si | No |
+| Wizard de asignacion | Si | No |
+| Mapa en vivo de todos los cobradores | Si | No |
+| Generar/modificar rutas | Si | No |
+| Ver todas las visitas | Si | Solo las suyas |
+| Ejecutar ML Pipeline | Si | No |
+| Registrar visitas | No | Si |
+| Navegar a clientes | No | Si |
+| Alertas de proximidad | No | Si |
+| Iniciar ruta desde su ubicacion | No | Si |
+
 ---
 
 ## 1. Acceso al Sistema
+
+### Pantalla de Login
+
+![Login Supervisor](/screens/02-sup-login.png)
 
 ### Ingresar al dashboard
 

@@ -2,9 +2,59 @@
 
 Manual de uso de la aplicacion movil para cobradores de campo. Esta guia cubre todas las funciones disponibles en **time.agentsmx.com/mi-agenda/**.
 
+## Flujo General de Trabajo Diario
+
+```mermaid
+flowchart TB
+    A["Abrir App\ntime.agentsmx.com"] --> B["Iniciar Sesion\n(COB-GPS-XX)"]
+    B --> C["Ver Mi Agenda\n(Mapa / Lista)"]
+    C --> D{"Iniciar Ruta?"}
+    D -->|"Si"| E["Sistema reordena\nparadas por GPS"]
+    D -->|"No"| F["Continuar con\norden original"]
+    E --> G["Navegar al\nprimer cliente"]
+    F --> G
+    G --> H["Llegar al\ndomicilio"]
+    H --> I["Registrar Visita\n(4 pasos)"]
+    I --> J{"Mas clientes\npendientes?"}
+    J -->|"Si"| G
+    J -->|"No"| K["Ruta Completada\nVer Reporte"]
+
+    L["Alerta de\nProximidad"] -.->|"Vibracion"| H
+
+    style A fill:#eff6ff,stroke:#3b82f6
+    style E fill:#ecfdf5,stroke:#10b981
+    style I fill:#fef3c7,stroke:#f59e0b
+    style K fill:#ecfdf5,stroke:#10b981
+    style L fill:#fef9c3,stroke:#eab308
+```
+
+## Ventajas del Sistema
+
+| Ventaja | Descripcion |
+|---------|-------------|
+| Rutas inteligentes | Las paradas se reordenan automaticamente desde tu ubicacion para minimizar tiempo de viaje |
+| Ventanas horarias | El sistema sabe cuando es mas probable encontrar al cliente en casa |
+| Alertas en tiempo real | Te avisa cuando pasas cerca de un cliente en ventana activa |
+| GPS vehicular como respaldo | Si tu celular no obtiene ubicacion, usa el GPS del vehiculo |
+| Vista 360 del cliente | Toda la informacion del cliente en un solo lugar |
+| Registro inmediato | Tus visitas llegan al supervisor en tiempo real |
+
+## Limitaciones a Considerar
+
+| Limitacion | Impacto |
+|------------|---------|
+| Requiere internet | Sin conexion no puedes cargar ruta ni enviar visitas |
+| Consumo de bateria | El GPS activo consume bateria — carga tu celular antes de salir |
+| Precision GPS | En interiores o zonas con senal debil, el GPS puede ser impreciso |
+| Sin modo offline completo | Las fotos y visitas necesitan internet para enviarse |
+
 ---
 
 ## 1. Acceso al Sistema
+
+### Pantalla de Login
+
+![Login PWA Cobrador](/screens/01-pwa-login.png)
 
 ### Ingresar a la aplicacion
 
@@ -132,6 +182,24 @@ Si la direccion GPS esta disponible, el boton "Navegar" usara esa por defecto, y
 ---
 
 ## 5. Registrar una Visita (Paso a Paso)
+
+### Flujo de Registro de Visita
+
+```mermaid
+flowchart LR
+    A["Paso 1\nSeleccionar\nResultado"] --> B{"Es promesa?"}
+    B -->|"Si"| C["Paso 2\nFecha + Monto\n+ Notas"]
+    B -->|"No"| D["Paso 3\nFotos +\nObservaciones"]
+    C --> D
+    D --> E["Paso 4\nConfirmar\ny Enviar"]
+    E --> F["Visita\nRegistrada"]
+
+    style A fill:#eff6ff,stroke:#3b82f6
+    style C fill:#fef3c7,stroke:#f59e0b
+    style D fill:#f3e8ff,stroke:#8b5cf6
+    style E fill:#ecfdf5,stroke:#10b981
+    style F fill:#ecfdf5,stroke:#10b981
+```
 
 Cuando llegas con un cliente o a una direccion, debes registrar el resultado de la visita. Sigue estos pasos:
 
