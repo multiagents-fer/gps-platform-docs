@@ -6,34 +6,21 @@ Manual de uso de la aplicacion movil para cobradores de campo. Esta guia cubre t
 
 ```mermaid
 flowchart TD
-    subgraph INICIO["1. INICIO DE JORNADA"]
-        A["Abrir la App"]:::blue --> B["Ingresar Credenciales\nCOB-GPS-XX + Contrasena"]:::blue
-        B --> C["Pantalla Mi Agenda"]:::blue
-    end
+    A["1. Abrir la App en time.agentsmx.com"]:::blue
+    A --> B["2. Ingresar credenciales: COB-GPS-XX + Contrasena"]:::blue
+    B --> C["3. Ver pantalla Mi Agenda con mapa y lista de clientes"]:::blue
+    C --> D{"Presionar el boton Iniciar Ruta?"}:::decision
+    D -->|"Si — Recomendado"| E["El sistema detecta tu ubicacion GPS y reordena las paradas automaticamente"]:::green
+    D -->|"No"| G["Las paradas se mantienen en el orden asignado por el supervisor"]:::gray
+    E --> H["4. Navegar al siguiente cliente con Google Maps"]:::blue
+    G --> H
+    H --> I["5. Llegar al domicilio del cliente"]:::blue
+    I --> J["6. Registrar el resultado de la visita en 4 pasos"]:::amber
+    J --> K{"Quedan clientes pendientes?"}:::decision
+    K -->|"Si — siguiente cliente"| H
+    K -->|"No — todos visitados"| L["7. RUTA COMPLETADA — Ver reporte del dia"]:::green
 
-    subgraph RUTA["2. PREPARAR LA RUTA"]
-        C --> D{"Presionar\nIniciar Ruta?"}:::decision
-        D -->|"Si — Recomendado"| E["El sistema detecta\ntu ubicacion GPS"]:::green
-        E --> F["Las paradas se reordenan\nautomaticamente desde\ntu posicion actual"]:::green
-        D -->|"No"| G["Las paradas quedan\nen el orden original"]:::gray
-    end
-
-    subgraph CICLO["3. CICLO DE VISITAS"]
-        F --> H["Ir al siguiente cliente\nBoton: Navegar"]:::blue
-        G --> H
-        H --> I["Llegar al domicilio"]:::blue
-        I --> J["Registrar resultado\nde la visita"]:::amber
-        J --> K{"Quedan clientes\npendientes?"}:::decision
-        K -->|"Si"| H
-        K -->|"No"| L["RUTA COMPLETADA\nVer tu reporte del dia"]:::green
-    end
-
-    subgraph ALERTAS["ALERTAS AUTOMATICAS"]
-        direction LR
-        M["Tu celular vibra\ncuando pasas cerca\nde un cliente en\nventana horaria"]:::alert
-    end
-
-    M -.->|"Aviso de\nproximidad"| I
+    M["ALERTA: Tu celular vibra cuando pasas cerca de un cliente en ventana horaria"]:::alert -.->|"Aviso automatico"| I
 
     classDef blue fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a5f
     classDef green fill:#d1fae5,stroke:#059669,stroke-width:2px,color:#064e3b
@@ -202,27 +189,17 @@ Si la direccion GPS esta disponible, el boton "Navegar" usara esa por defecto, y
 
 ```mermaid
 flowchart TD
-    subgraph PASO1["PASO 1 — Seleccionar Resultado"]
-        A["Tocar al cliente\ny presionar Registrar"]:::blue --> B{"Que tipo\nde resultado?"}:::decision
-        B -->|"Positivo"| C["Promesa de pago\nEntrega auto garantia\nEntrega auto definitiva"]:::green
-        B -->|"Accion"| D["Carta visita\nCarta juridico\nCita despacho"]:::amber
-        B -->|"Negativo"| E["No dan acceso\nNo vive ahi\nCasa abandonada\nNo se localizo"]:::red
-    end
-
-    subgraph PASO2["PASO 2 — Detalles (solo promesas)"]
-        C --> F["Fecha de pago\nMonto prometido\nNotas del acuerdo"]:::amber
-    end
-
-    subgraph PASO3["PASO 3 — Evidencia"]
-        D --> G["Tomar fotos\nEscribir observaciones"]:::purple
-        E --> G
-        F --> G
-    end
-
-    subgraph PASO4["PASO 4 — Confirmar"]
-        G --> H["Revisar informacion\ny presionar Enviar"]:::blue
-        H --> I["VISITA REGISTRADA\nTu supervisor la ve\nen tiempo real"]:::green
-    end
+    A["PASO 1: Tocar al cliente y presionar Registrar"]:::blue
+    A --> B{"Seleccionar tipo de resultado"}:::decision
+    B -->|"Resultado Positivo"| C["Promesa de pago / Entrega auto garantia / Entrega auto definitiva"]:::green
+    B -->|"Accion Realizada"| D["Carta visita / Carta juridico / Cita despacho externo"]:::amber
+    B -->|"Resultado Negativo"| E["No dan acceso / No vive ahi / Casa abandonada / No se localizo"]:::red
+    C --> F["PASO 2: Capturar fecha de pago, monto prometido y notas"]:::amber
+    F --> G["PASO 3: Tomar fotos de evidencia y escribir observaciones"]:::purple
+    D --> G
+    E --> G
+    G --> H["PASO 4: Revisar toda la informacion y presionar Enviar"]:::blue
+    H --> I["VISITA REGISTRADA — Tu supervisor la ve en tiempo real"]:::green
 
     classDef blue fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a5f
     classDef green fill:#d1fae5,stroke:#059669,stroke-width:2px,color:#064e3b

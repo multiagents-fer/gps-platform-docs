@@ -4,60 +4,62 @@ Manual de uso del dashboard de supervision para la plataforma de Cobranza Inteli
 
 ## Flujo de Operacion Diaria del Supervisor
 
+### Flujo General del Supervisor
+
 ```mermaid
 flowchart TD
-    subgraph LOGIN["ACCESO"]
-        A["Iniciar Sesion\nSUP-CENTRAL"]:::blue
-    end
-
-    A --> B["Dashboard Principal\nKPIs: morosos, asignados,\nrecuperado, efectividad"]:::blue
-
-    subgraph FUNCIONES["FUNCIONES PRINCIPALES"]
-        direction TB
-
-        subgraph AGENDA["ASIGNACION DE AGENDA"]
-            direction TB
-            D1["Paso 1\nSeleccionar Bucket\nB1 a B10"]:::amber
-            D2["Paso 2\nGenerar Paquetes\nK-Means geografico"]:::amber
-            D3["Paso 3\nElegir Estrategia\ndebt_focused / gps_online"]:::amber
-            D4["Paso 4\nAsignar a Cobrador\nverificar capacidad"]:::amber
-            D1 --> D2 --> D3 --> D4
-        end
-
-        subgraph MONITOREO["MONITOREO EN VIVO"]
-            direction TB
-            E1["Mapa con ubicacion\nde todos los cobradores"]:::green
-            E2["Estado de cada ruta\npendiente / en progreso / completada"]:::green
-            E3["Alertas automaticas\nde re-optimizacion"]:::green
-        end
-
-        subgraph REPORTES["REPORTES"]
-            direction TB
-            F1["Ejecutivo\nKPIs generales y tendencias"]:::purple
-            F2["Por Cobrador\nvisitas, promesas, efectividad"]:::purple
-            F3["GPS y ML\nresidencias, trails, predicciones"]:::purple
-            F4["Promesas\ncumplimiento y vencimientos"]:::purple
-        end
-
-        subgraph ML["PIPELINE ML"]
-            direction TB
-            G1["Ejecutar deteccion\nde residencias"]:::yellow
-            G2["Ver residencias\ndetectadas por GPS"]:::yellow
-            G3["Ver ventanas\nhorarias optimas"]:::yellow
-            G1 --> G2 --> G3
-        end
-    end
-
-    B --> AGENDA
-    B --> MONITOREO
-    B --> REPORTES
-    B --> ML
-
-    D4 -->|"Rutas generadas\npara cobradores"| E1
+    A["Iniciar Sesion como SUP-CENTRAL en time.agentsmx.com/dashboard"]:::blue
+    A --> B["Dashboard Principal — KPIs: morosos totales, asignados, monto recuperado, efectividad"]:::blue
+    B --> C["ASIGNACION DE AGENDA"]:::amber
+    B --> D["MONITOREO EN VIVO"]:::green
+    B --> E["REPORTES"]:::purple
+    B --> F["PIPELINE ML"]:::yellow
 
     classDef blue fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a5f
     classDef green fill:#d1fae5,stroke:#059669,stroke-width:2px,color:#064e3b
     classDef amber fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#78350f
+    classDef purple fill:#f3e8ff,stroke:#7c3aed,stroke-width:2px,color:#4c1d95
+    classDef yellow fill:#fef9c3,stroke:#ca8a04,stroke-width:2px,color:#713f12
+```
+
+### Wizard de Asignacion (4 pasos)
+
+```mermaid
+flowchart LR
+    A["Paso 1: Seleccionar Bucket B1 a B10"]:::amber
+    A --> B["Paso 2: Generar Paquetes con K-Means geografico"]:::amber
+    B --> C["Paso 3: Elegir Estrategia de priorizacion"]:::amber
+    C --> D["Paso 4: Asignar paquete al cobrador verificando capacidad"]:::amber
+    D --> E["Rutas generadas y listas para los cobradores"]:::green
+
+    classDef amber fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#78350f
+    classDef green fill:#d1fae5,stroke:#059669,stroke-width:2px,color:#064e3b
+```
+
+### Modulos del Sistema
+
+```mermaid
+flowchart TD
+    subgraph MON["MONITOREO EN VIVO"]
+        E1["Mapa con ubicacion de todos los cobradores en tiempo real"]:::green
+        E2["Estado de cada ruta: pendiente, en progreso o completada"]:::green
+        E3["Alertas automaticas cuando el sistema re-optimiza una ruta"]:::green
+    end
+
+    subgraph REP["REPORTES"]
+        F1["Ejecutivo: KPIs generales, tendencias y comparativas"]:::purple
+        F2["Por Cobrador: visitas realizadas, promesas obtenidas, efectividad"]:::purple
+        F3["GPS y ML: residencias detectadas, trails vehiculares, predicciones"]:::purple
+        F4["Promesas: cumplimiento, vencimientos proximos, montos comprometidos"]:::purple
+    end
+
+    subgraph MLP["PIPELINE ML"]
+        G1["Ejecutar deteccion automatica de residencias con datos GPS"]:::yellow
+        G1 --> G2["Ver residencias detectadas con nivel de confianza"]:::yellow
+        G2 --> G3["Ver ventanas horarias optimas por cliente"]:::yellow
+    end
+
+    classDef green fill:#d1fae5,stroke:#059669,stroke-width:2px,color:#064e3b
     classDef purple fill:#f3e8ff,stroke:#7c3aed,stroke-width:2px,color:#4c1d95
     classDef yellow fill:#fef9c3,stroke:#ca8a04,stroke-width:2px,color:#713f12
 ```
