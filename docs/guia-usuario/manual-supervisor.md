@@ -1,19 +1,36 @@
-# Manual Sistema Supervisor
+# Manual Supervisor — Dashboard
 
-Manual de uso del dashboard de supervision para la plataforma de Cobranza Inteligente. Esta guia cubre todas las funciones disponibles en **time.agentsmx.com/dashboard/**.
+> Guia completa del dashboard de supervision para la plataforma de Cobranza Inteligente en **time.agentsmx.com/dashboard/**
 
-## Flujo de Operacion Diaria del Supervisor
+---
+
+## Contenido
+
+1. [Flujo de Operacion](#_1-flujo-de-operacion)
+2. [Acceso al Sistema](#_2-acceso-al-sistema)
+3. [Dashboard Principal](#_3-dashboard-principal)
+4. [Asignacion de Agenda](#_4-asignacion-de-agenda)
+5. [Generacion de Rutas](#_5-generacion-de-rutas)
+6. [Monitoreo en Vivo](#_6-monitoreo-en-vivo)
+7. [Gestion de Cobradores](#_7-gestion-de-cobradores)
+8. [Reportes](#_8-reportes)
+9. [Pipeline ML](#_9-pipeline-ml)
+10. [Sistema GPS](#_10-sistema-gps)
+11. [Reglas por Bucket](#_11-reglas-por-bucket)
+
+---
+
+## 1. Flujo de Operacion
 
 ### Flujo General del Supervisor
 
 ```mermaid
 flowchart TD
-    A["Iniciar Sesion como SUP-CENTRAL en time.agentsmx.com/dashboard"]:::blue
-    A --> B["Dashboard Principal — KPIs: morosos totales, asignados, monto recuperado, efectividad"]:::blue
-    B --> C["ASIGNACION DE AGENDA"]:::amber
-    B --> D["MONITOREO EN VIVO"]:::green
-    B --> E["REPORTES"]:::purple
-    B --> F["PIPELINE ML"]:::yellow
+    A["Login SUP-CENTRAL"]:::blue --> B["Dashboard KPIs"]:::blue
+    B --> C["Asignar Agenda"]:::amber
+    B --> D["Monitoreo Vivo"]:::green
+    B --> E["Reportes"]:::purple
+    B --> F["Pipeline ML"]:::yellow
 
     classDef blue fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a5f
     classDef green fill:#d1fae5,stroke:#059669,stroke-width:2px,color:#064e3b
@@ -22,77 +39,35 @@ flowchart TD
     classDef yellow fill:#fef9c3,stroke:#ca8a04,stroke-width:2px,color:#713f12
 ```
 
-### Wizard de Asignacion (4 pasos)
-
-```mermaid
-flowchart LR
-    A["Paso 1: Seleccionar Bucket B1 a B10"]:::amber
-    A --> B["Paso 2: Generar Paquetes con K-Means geografico"]:::amber
-    B --> C["Paso 3: Elegir Estrategia de priorizacion"]:::amber
-    C --> D["Paso 4: Asignar paquete al cobrador verificando capacidad"]:::amber
-    D --> E["Rutas generadas y listas para los cobradores"]:::green
-
-    classDef amber fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#78350f
-    classDef green fill:#d1fae5,stroke:#059669,stroke-width:2px,color:#064e3b
-```
-
-### Modulos del Sistema
-
-```mermaid
-flowchart TD
-    subgraph MON["MONITOREO EN VIVO"]
-        E1["Mapa con ubicacion de todos los cobradores en tiempo real"]:::green
-        E2["Estado de cada ruta: pendiente, en progreso o completada"]:::green
-        E3["Alertas automaticas cuando el sistema re-optimiza una ruta"]:::green
-    end
-
-    subgraph REP["REPORTES"]
-        F1["Ejecutivo: KPIs generales, tendencias y comparativas"]:::purple
-        F2["Por Cobrador: visitas realizadas, promesas obtenidas, efectividad"]:::purple
-        F3["GPS y ML: residencias detectadas, trails vehiculares, predicciones"]:::purple
-        F4["Promesas: cumplimiento, vencimientos proximos, montos comprometidos"]:::purple
-    end
-
-    subgraph MLP["PIPELINE ML"]
-        G1["Ejecutar deteccion automatica de residencias con datos GPS"]:::yellow
-        G1 --> G2["Ver residencias detectadas con nivel de confianza"]:::yellow
-        G2 --> G3["Ver ventanas horarias optimas por cliente"]:::yellow
-    end
-
-    classDef green fill:#d1fae5,stroke:#059669,stroke-width:2px,color:#064e3b
-    classDef purple fill:#f3e8ff,stroke:#7c3aed,stroke-width:2px,color:#4c1d95
-    classDef yellow fill:#fef9c3,stroke:#ca8a04,stroke-width:2px,color:#713f12
-```
-
-## Ventajas del Sistema
+### Ventajas del Sistema
 
 | Ventaja | Descripcion |
 |---------|-------------|
-| Asignacion inteligente | K-Means agrupa morosos por zona geografica automaticamente |
-| Rutas optimizadas | Dos modos: por reglas de bucket o por IA (K-Means + scoring) |
-| Monitoreo en tiempo real | Ubicacion de cobradores y estado de visitas en vivo |
-| ML Pipeline | Deteccion automatica de residencias y ventanas horarias con GPS |
-| Scoring multi-nivel | 3 niveles de puntuacion (deuda, GPS, subfactores) con multiplicadores |
-| Re-optimizacion automatica | Cada 5 minutos el sistema reordena paradas basado en condiciones actuales |
+| Asignacion inteligente | K-Means agrupa morosos por zona geografica |
+| Rutas optimizadas | Dos modos: por reglas de bucket o por IA |
+| Monitoreo en tiempo real | Ubicacion de cobradores y visitas en vivo |
+| ML Pipeline | Deteccion automatica de residencias y ventanas horarias |
+| Scoring multi-nivel | 3 niveles de puntuacion con multiplicadores |
+| Re-optimizacion automatica | Cada 5 min reordena paradas segun condiciones actuales |
 
-## Diferencias Supervisor vs Cobrador
+### Diferencias Supervisor vs Cobrador
 
 | Funcion | Supervisor | Cobrador |
 |---------|:---:|:---:|
 | Dashboard con KPIs | Si | No |
 | Wizard de asignacion | Si | No |
-| Mapa en vivo de todos los cobradores | Si | No |
+| Mapa en vivo de cobradores | Si | No |
 | Generar/modificar rutas | Si | No |
 | Ver todas las visitas | Si | Solo las suyas |
 | Ejecutar ML Pipeline | Si | No |
 | Registrar visitas | No | Si |
 | Navegar a clientes | No | Si |
 | Alertas de proximidad | No | Si |
-| Iniciar ruta desde su ubicacion | No | Si |
+| Iniciar ruta desde ubicacion | No | Si |
 
 ---
 
-## 1. Acceso al Sistema
+## 2. Acceso al Sistema
 
 ### Pantalla de Login
 
@@ -110,22 +85,16 @@ flowchart TD
 
 3. Presiona **Iniciar sesion**.
 
-### Diferencias entre roles
+### URLs por rol
 
-| Caracteristica | Supervisor | Cobrador |
-|---------------|-----------|---------|
-| URL de acceso | time.agentsmx.com/dashboard/ | time.agentsmx.com/mi-agenda/ |
-| Asignar agendas | Si | No |
-| Generar rutas | Si | No |
-| Ver todos los cobradores | Si | No |
-| Registrar visitas | No | Si |
-| Ver reportes globales | Si | Solo los propios |
-| Ejecutar pipeline ML | Si | No |
-| Monitoreo en tiempo real | Si | No |
+| Rol | URL de acceso |
+|-----|---------------|
+| Supervisor | time.agentsmx.com/dashboard/ |
+| Cobrador | time.agentsmx.com/mi-agenda/ |
 
 ---
 
-## 2. Dashboard Principal
+## 3. Dashboard Principal
 
 Al ingresar veras el panel con los indicadores clave de operacion.
 
@@ -136,7 +105,7 @@ Al ingresar veras el panel con los indicadores clave de operacion.
 | Morosos totales | Numero total de cuentas morosas en cartera |
 | Asignados | Cuentas que ya tienen cobrador asignado |
 | Completados | Visitas realizadas en el periodo actual |
-| Monto recuperado | Suma total de pagos recibidos y promesas cumplidas |
+| Monto recuperado | Suma de pagos recibidos y promesas cumplidas |
 
 ### Graficas de rendimiento
 
@@ -147,51 +116,64 @@ Al ingresar veras el panel con los indicadores clave de operacion.
 
 ---
 
-## 3. Gestion de Agenda (Wizard de Asignacion)
+## 4. Asignacion de Agenda
 
 El wizard te guia paso a paso para asignar cuentas a los cobradores de campo.
+
+### Wizard de 4 pasos
+
+```mermaid
+flowchart LR
+    A["1. Bucket\nB1-B10"]:::amber --> B["2. K-Means\ngeografico"]:::amber
+    B --> C["3. Estrategia\npriorizacion"]:::amber
+    C --> D["4. Asignar\ncobrador"]:::amber
+    D --> E["Rutas listas"]:::green
+
+    classDef amber fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#78350f
+    classDef green fill:#d1fae5,stroke:#059669,stroke-width:2px,color:#064e3b
+```
 
 ### Paso 1: Seleccionar bucket
 
 Selecciona el bucket de morosidad que deseas trabajar. El sistema muestra las estadisticas de cada uno:
 
-| Bucket | Dias de mora | Cuentas | Sin asignar |
-|--------|-------------|---------|-------------|
-| B1 | 1-15 | Variable | Variable |
-| B2 | 16-30 | Variable | Variable |
-| B3 | 31-60 | Variable | Variable |
-| B4 | 61-90 | Variable | Variable |
-| B5 | 91-120 | Variable | Variable |
-| B6 | 121-150 | Variable | Variable |
-| B7 | 151-180 | Variable | Variable |
-| B8 | 181-270 | Variable | Variable |
-| B9 | 271-360 | Variable | Variable |
-| B10 | 360+ | Variable | Variable |
+| Bucket | Dias de mora | Tipo |
+|--------|-------------|------|
+| B1 | 1-15 | Preventiva |
+| B2 | 16-30 | Preventiva |
+| B3 | 31-60 | Gestion |
+| B4 | 61-90 | Gestion |
+| B5 | 91-120 | Intensiva |
+| B6 | 121-150 | Intensiva |
+| B7 | 151-180 | Juridica |
+| B8 | 181-270 | Juridica |
+| B9 | 271-360 | Juridica |
+| B10 | 360+ | Recuperacion |
 
 ### Paso 2: Generar paquetes K-Means
 
 1. Presiona **"Generar paquetes"**.
-2. El sistema agrupa geograficamente las cuentas usando el algoritmo K-Means.
+2. El sistema agrupa geograficamente las cuentas usando K-Means.
 3. Cada paquete contiene cuentas cercanas entre si para minimizar tiempos de traslado.
-4. Veras los paquetes representados como clusters en el mapa.
+4. Veras los paquetes como clusters en el mapa.
 
-### Paso 3: Seleccionar estrategia de priorizacion
+### Paso 3: Seleccionar estrategia
 
-Elige como quieres que se ordenen las cuentas dentro de cada paquete:
+Elige como ordenar las cuentas dentro de cada paquete:
 
 | Estrategia | Descripcion | Cuando usarla |
 |-----------|-------------|--------------|
-| `debt_focused` | Prioriza cuentas con mayor monto adeudado | Cuando el objetivo es maximizar monto recuperado |
-| `gps_online` | Prioriza cuentas con GPS vehicular activo | Cuando se quiere aprovechar la ubicacion en tiempo real |
-| `time_window` | Prioriza cuentas con ventana horaria activa | Para maximizar la probabilidad de contacto |
-| `balanced` | Combina todos los factores con pesos iguales | Para operacion general del dia a dia |
-| `early_bucket` | Prioriza buckets bajos (B1-B3) | Para prevencion de escalamiento |
+| `debt_focused` | Prioriza mayor monto adeudado | Maximizar monto recuperado |
+| `gps_online` | Prioriza GPS vehicular activo | Aprovechar ubicacion en tiempo real |
+| `time_window` | Prioriza ventana horaria activa | Maximizar probabilidad de contacto |
+| `balanced` | Combina todos los factores | Operacion general dia a dia |
+| `early_bucket` | Prioriza buckets bajos (B1-B3) | Prevencion de escalamiento |
 
 ### Paso 4: Asignar paquete a cobrador
 
 1. Selecciona un paquete del mapa.
 2. Selecciona un cobrador de la lista disponible.
-3. El sistema muestra la **capacidad del cobrador**: cuantas cuentas tiene asignadas actualmente vs su limite diario.
+3. El sistema muestra la **capacidad del cobrador**: cuentas asignadas vs limite diario.
 4. Confirma la asignacion.
 
 ::: warning Verificar capacidad
@@ -200,14 +182,25 @@ Antes de asignar, revisa que el cobrador no exceda su capacidad diaria recomenda
 
 ---
 
-## 4. Generacion de Rutas Diarias
+## 5. Generacion de Rutas
 
 ### Modos de generacion
 
+```mermaid
+flowchart LR
+    A["Generar Ruta"]:::blue --> B{"Modo?"}
+    B -->|"Reglas"| C["Bucket Rules\nPredecible"]:::amber
+    B -->|"IA"| D["K-Means + Scoring\nOptimizado"]:::green
+
+    classDef blue fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a5f
+    classDef amber fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#78350f
+    classDef green fill:#d1fae5,stroke:#059669,stroke-width:2px,color:#064e3b
+```
+
 | Modo | Descripcion | Ventaja |
 |------|-------------|---------|
-| **Bucket (reglas)** | Genera rutas siguiendo las reglas de negocio de cada bucket | Predecible, basado en politicas establecidas |
-| **AI Optimizado (K-Means)** | Genera rutas usando agrupacion geografica inteligente | Reduce tiempos de traslado, mayor cobertura |
+| **Bucket (reglas)** | Rutas segun reglas de negocio por bucket | Predecible, basado en politicas |
+| **AI Optimizado** | Agrupacion geografica con K-Means | Reduce traslados, mayor cobertura |
 
 ### Generacion automatica
 
@@ -232,7 +225,7 @@ Antes de asignar, revisa que el cobrador no exceda su capacidad diaria recomenda
 
 ---
 
-## 5. Monitoreo en Tiempo Real
+## 6. Monitoreo en Vivo
 
 ### Mapa en vivo
 
@@ -242,21 +235,21 @@ La seccion de monitoreo muestra un mapa con la ubicacion actual de todos los cob
 
 | Estado | Significado |
 |--------|------------|
-| Pendiente | La ruta fue generada pero el cobrador no la ha iniciado |
-| En progreso | El cobrador inicio la ruta y esta visitando clientes |
-| Completada | El cobrador termino todas las visitas de su ruta |
-| Parcial | El cobrador finalizo su jornada sin completar todas las visitas |
+| Pendiente | Ruta generada, cobrador no la ha iniciado |
+| En progreso | Cobrador esta visitando clientes |
+| Completada | Todas las visitas terminadas |
+| Parcial | Jornada finalizada sin completar todas las visitas |
 
 ### Alertas de re-optimizacion
 
 El sistema puede sugerir cambios en las rutas durante el dia:
 - Si un cobrador esta atrasado, puede redistribuir visitas a otro cobrador cercano.
-- Si se detecta un vehiculo en casa (via GPS), el sistema alerta al cobrador mas cercano.
+- Si se detecta un vehiculo en casa (via GPS), alerta al cobrador mas cercano.
 - Las alertas aparecen como notificaciones en la parte superior del dashboard.
 
 ---
 
-## 6. Gestion de Cobradores
+## 7. Gestion de Cobradores
 
 ### Ver lista de cobradores
 
@@ -264,7 +257,7 @@ En la seccion **"Cobradores"** del menu lateral puedes ver:
 
 | Columna | Descripcion |
 |---------|-------------|
-| Codigo | Identificador del cobrador (COB-GPS-XX) |
+| Codigo | Identificador (COB-GPS-XX) |
 | Nombre | Nombre completo |
 | Estado | Activo / Inactivo |
 | Cuentas asignadas | Numero actual de cuentas en su agenda |
@@ -294,7 +287,20 @@ Lista de dispositivos GPS instalados en los vehiculos de los cobradores, con:
 
 ---
 
-## 7. Reportes
+## 8. Reportes
+
+### Tipos de reportes
+
+```mermaid
+flowchart TD
+    A["Reportes"]:::blue --> B["Ejecutivo\nKPIs y tendencias"]:::purple
+    A --> C["Por Cobrador\nRendimiento individual"]:::purple
+    A --> D["GPS\nTrails y residencias"]:::purple
+    A --> E["Promesas\nSeguimiento pagos"]:::purple
+
+    classDef blue fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a5f
+    classDef purple fill:#f3e8ff,stroke:#7c3aed,stroke-width:2px,color:#4c1d95
+```
 
 ### Reporte ejecutivo
 
@@ -306,13 +312,11 @@ Resumen de alto nivel con:
 
 ### Reporte por cobrador
 
-Detalle individual para cada cobrador:
-
 | Metrica | Descripcion |
 |---------|-------------|
 | Visitas realizadas | Total de visitas en el periodo |
 | Promesas obtenidas | Numero de promesas de pago |
-| Tasa de contacto | Porcentaje de visitas donde se contacto al titular |
+| Tasa de contacto | Porcentaje donde se contacto al titular |
 | Rutas completadas | Porcentaje de rutas terminadas al 100% |
 | Tiempo promedio por visita | Minutos promedio en cada parada |
 
@@ -325,8 +329,6 @@ Informacion derivada de los dispositivos GPS vehiculares:
 
 ### Reporte de promesas
 
-Seguimiento de todas las promesas de pago:
-
 | Columna | Descripcion |
 |---------|-------------|
 | Cliente | Nombre y numero de credito |
@@ -337,9 +339,23 @@ Seguimiento de todas las promesas de pago:
 
 ---
 
-## 8. Pipeline ML
+## 9. Pipeline ML
 
 El pipeline de Machine Learning analiza los datos GPS para generar inteligencia sobre los morosos.
+
+### Flujo del Pipeline
+
+```mermaid
+flowchart LR
+    A["Datos GPS\nvehiculares"]:::blue --> B["HDBSCAN\ndetecta residencia"]:::green
+    B --> C["KDE\nventanas horarias"]:::green
+    C --> D["Scoring\nprobabilidad"]:::green
+    D --> E["Actualiza agenda\ncobradores"]:::amber
+
+    classDef blue fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a5f
+    classDef green fill:#d1fae5,stroke:#059669,stroke-width:2px,color:#064e3b
+    classDef amber fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#78350f
+```
 
 ### Ejecutar pipeline
 
@@ -353,59 +369,40 @@ El pipeline de Machine Learning analiza los datos GPS para generar inteligencia 
 | Resultado | Descripcion |
 |-----------|-------------|
 | Residencias detectadas | Direcciones donde el vehiculo pernocta, diferentes a la del credito |
-| Ventanas horarias | Franjas de tiempo en que el vehiculo esta estacionado en la residencia |
-| Predicciones de presencia | Probabilidad de encontrar el vehiculo en la residencia por dia y hora |
+| Ventanas horarias | Franjas de tiempo en que el vehiculo esta en la residencia |
+| Predicciones de presencia | Probabilidad de encontrar el vehiculo por dia y hora |
 
 ### Niveles de confianza
 
 | Nivel | Significado | Criterio |
 |-------|------------|---------|
-| **Alta** | El sistema tiene certeza razonable | Mas de 20 noches detectadas en la misma ubicacion |
-| **Media** | Patron identificado pero con variaciones | Entre 10 y 20 noches detectadas |
-| **Baja** | Datos insuficientes o patron irregular | Menos de 10 noches detectadas |
+| **Alta** | Certeza razonable | Mas de 20 noches en la misma ubicacion |
+| **Media** | Patron con variaciones | Entre 10 y 20 noches detectadas |
+| **Baja** | Datos insuficientes | Menos de 10 noches detectadas |
 
 Los niveles de confianza se muestran en la vista 360 de cada cliente y afectan la priorizacion en las agendas.
 
 ---
 
-## 9. Sistema GPS — Vision del Supervisor
+## 10. Sistema GPS
 
-Como supervisor, tienes acceso a toda la infraestructura GPS del sistema. Aqui se explica como funciona cada componente.
+Como supervisor, tienes acceso a toda la infraestructura GPS del sistema.
 
-### Arquitectura GPS Completa
+### Arquitectura GPS
 
 ```mermaid
 flowchart TD
-    subgraph VEHICULOS["GPS VEHICULOS (4,000+ dispositivos)"]
-        V1["Dispositivo GPS fisico SeeWorld/WhatsGPS instalado en cada vehiculo financiado"]:::blue
-        V1 --> V2["Reporta posicion cada 60 segundos al servidor central"]:::blue
-        V2 --> V3["Se almacena en vehicle_latest_positions y TimescaleDB"]:::blue
+    subgraph VEH["GPS Vehiculos 4000+"]
+        V1["Dispositivo fisico"]:::blue --> V2["Cada 60s al servidor"]:::blue
     end
-
-    subgraph COBRADORES["GPS COBRADORES (9 celulares)"]
-        C1["PWA en el celular del cobrador con GPS activado"]:::amber
-        C1 --> C2["Envia posicion cada 15 segundos durante la ruta"]:::amber
-        C2 --> C3["Se almacena en collector_positions"]:::amber
+    subgraph COB["GPS Cobradores 9"]
+        C1["PWA celular"]:::amber --> C2["Cada 15s al servidor"]:::amber
     end
-
-    subgraph ML["PIPELINE ML — Analisis"]
-        M1["HDBSCAN: detecta residencia del cliente analizando donde pernocta el vehiculo"]:::green
-        M2["KDE: detecta ventanas horarias analizando a que hora llega y sale"]:::green
-        M3["Scoring: calcula probabilidad de encontrar al cliente en cada horario"]:::green
-        M1 --> M2 --> M3
-    end
-
-    subgraph ROUTING["SMART ROUTE ENGINE"]
-        R1["Combina posicion del cobrador + posicion del vehiculo + ventanas ML"]:::purple
-        R2["Genera ruta optimizada priorizando paradas en ventana horaria activa"]:::purple
-        R3["Re-optimiza cada 5 minutos si cambian las condiciones"]:::purple
-        R1 --> R2 --> R3
-    end
-
-    V3 --> M1
-    V3 --> R1
-    C3 --> R1
-    M3 --> R1
+    V2 --> ML["ML Pipeline\nResidencia + Ventanas"]:::green
+    V2 --> RT["Smart Route Engine"]:::purple
+    C2 --> RT
+    ML --> RT
+    RT --> PWA["Ruta optimizada\nen PWA cobrador"]:::blue
 
     classDef blue fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a5f
     classDef amber fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#78350f
@@ -417,34 +414,33 @@ flowchart TD
 
 | Dato | Donde verlo | Para que sirve |
 |------|-------------|---------------|
-| Vehiculo online/offline | Mapa en vivo + detalle de cliente | Saber si el vehiculo tiene GPS activo |
-| Ultima posicion conocida | Mapa en vivo | Localizar el vehiculo en tiempo real |
-| Residencia detectada (ML) | Detalle de cliente, seccion ML | Saber donde vive realmente el moroso |
-| Ventanas horarias | Detalle de cliente, seccion ventanas | Saber a que hora visitar |
-| Confianza de deteccion | Pipeline ML, resultados | Alta, Media o Baja — que tan seguro es el dato |
-| Trail vehicular | Reportes GPS | Historial de movimientos del vehiculo |
+| Online/offline | Mapa en vivo + detalle cliente | Saber si el GPS esta activo |
+| Ultima posicion | Mapa en vivo | Localizar vehiculo en tiempo real |
+| Residencia (ML) | Detalle cliente, seccion ML | Donde vive realmente el moroso |
+| Ventanas horarias | Detalle cliente, seccion ventanas | A que hora visitar |
+| Confianza | Pipeline ML, resultados | Alta, Media o Baja |
+| Trail vehicular | Reportes GPS | Historial de movimientos |
 
 ### GPS de Cobradores — Lo que ve el supervisor
 
 | Dato | Donde verlo | Para que sirve |
 |------|-------------|---------------|
-| Posicion actual del cobrador | Mapa en vivo | Monitorear donde esta cada cobrador |
-| Ruta recorrida | Reportes por cobrador, trail | Verificar que el cobrador fue a las direcciones |
-| Hora de inicio de ruta | Estado de rutas | Verificar puntualidad |
-| Distancia recorrida | Reporte diario | Medir eficiencia del cobrador |
-| Visitas con GPS | Historial de visitas | Evidencia de que el cobrador estuvo en el domicilio |
+| Posicion actual | Mapa en vivo | Donde esta cada cobrador |
+| Ruta recorrida | Reportes cobrador, trail | Verificar que fue a las direcciones |
+| Hora de inicio | Estado de rutas | Verificar puntualidad |
+| Distancia recorrida | Reporte diario | Medir eficiencia |
+| Visitas con GPS | Historial de visitas | Evidencia de presencia |
 
-### Flujo de Datos GPS — De la fuente al cobrador
+### Flujo de datos GPS
 
 ```mermaid
 flowchart LR
-    A["GPS fisico en vehiculo del cliente"]:::blue
-    A -->|"Cada 60s"| B["Backend: vehicle_latest_positions"]:::blue
-    B -->|"Semanal"| C["ML Pipeline: detecta residencia + ventanas"]:::green
-    C --> D["detected_locations + time_windows en BD"]:::green
-    D -->|"Diario 6AM"| E["Generador de rutas: usa ventanas para ordenar paradas"]:::amber
-    E --> F["Ruta optimizada aparece en la PWA del cobrador"]:::amber
-    F -->|"Cada 5 min"| G["Smart Optimizer: re-ordena si el vehiculo aparece en casa"]:::purple
+    A["GPS fisico\nvehiculo"]:::blue -->|"60s"| B["Backend\npositions DB"]:::blue
+    B -->|"Semanal"| C["ML Pipeline\nresidencia"]:::green
+    C --> D["Ventanas en BD"]:::green
+    D -->|"Diario 6AM"| E["Generador\nde rutas"]:::amber
+    E --> F["PWA cobrador"]:::amber
+    F -->|"5 min"| G["Smart Optimizer\nre-ordena"]:::purple
 
     classDef blue fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a5f
     classDef green fill:#d1fae5,stroke:#059669,stroke-width:2px,color:#064e3b
@@ -468,28 +464,28 @@ flowchart LR
 
 | Situacion | Que indica | Que hacer |
 |-----------|-----------|-----------|
-| Vehiculo online en casa | El moroso esta probablemente en su domicilio | Priorizar esta visita — alta probabilidad de contacto |
-| Vehiculo online pero lejos | El moroso salio de casa | Esperar a que regrese o visitar en la ventana horaria |
-| Vehiculo offline >7 dias | GPS desconectado, posible bateria desconectada | Marcar como visita prioritaria para verificar fisicamente |
-| Vehiculo en taller conocido | GPS detecta ubicacion en taller de adjudicacion | No visitar — vehiculo en proceso de adjudicacion |
-| Cobrador sin GPS | Celular sin senal o GPS apagado | El sistema usa la posicion del GPS del vehiculo como fallback |
+| Vehiculo online en casa | Moroso probablemente en domicilio | Priorizar visita |
+| Vehiculo online pero lejos | Moroso salio de casa | Esperar o visitar en ventana horaria |
+| Vehiculo offline >7 dias | GPS desconectado | Marcar como visita prioritaria |
+| Vehiculo en taller conocido | En proceso de adjudicacion | No visitar |
+| Cobrador sin GPS | Celular sin senal o GPS apagado | Sistema usa GPS vehiculo como fallback |
 
 ---
 
-## 10. Reglas de Negocio por Bucket
+## 11. Reglas por Bucket
 
 Cada bucket tiene reglas especificas que determinan la frecuencia de visitas, promesas permitidas y montos minimos.
 
 ### Tabla de reglas B1-B10
 
-| Bucket | Dias mora | Frecuencia de visita | Promesas permitidas | Monto minimo de pago | Tipo de visita |
-|--------|----------|---------------------|--------------------|--------------------|---------------|
-| B1 | 1-15 | 1 vez por semana | 2 | 1 mensualidad | Preventiva |
-| B2 | 16-30 | 2 veces por semana | 2 | 1 mensualidad | Preventiva |
-| B3 | 31-60 | 2 veces por semana | 1 | 2 mensualidades | Gestion |
-| B4 | 61-90 | 3 veces por semana | 1 | 2 mensualidades | Gestion |
+| Bucket | Dias mora | Frecuencia visita | Promesas | Monto minimo | Tipo |
+|--------|----------|-------------------|----------|--------------|------|
+| B1 | 1-15 | 1x semana | 2 | 1 mensualidad | Preventiva |
+| B2 | 16-30 | 2x semana | 2 | 1 mensualidad | Preventiva |
+| B3 | 31-60 | 2x semana | 1 | 2 mensualidades | Gestion |
+| B4 | 61-90 | 3x semana | 1 | 2 mensualidades | Gestion |
 | B5 | 91-120 | Diaria | 1 | 3 mensualidades | Intensiva |
-| B6 | 121-150 | Diaria | 1 | Liquidacion o convenio | Intensiva |
+| B6 | 121-150 | Diaria | 1 | Liquidacion/convenio | Intensiva |
 | B7 | 151-180 | Diaria | 0 | Liquidacion | Juridica |
 | B8 | 181-270 | Oportunista | 0 | Liquidacion | Juridica |
 | B9 | 271-360 | Oportunista | 0 | Liquidacion | Juridica |
@@ -502,14 +498,14 @@ Un cliente escala automaticamente al siguiente bucket cuando:
 - Incumple una promesa de pago.
 - No se logra contacto en el periodo establecido.
 
-El escalamiento ocurre de forma automatica en el sistema. El supervisor es notificado cuando un cliente cambia de bucket.
+El escalamiento ocurre de forma automatica. El supervisor es notificado cuando un cliente cambia de bucket.
 
 ### Visitas oportunistas (B5-B10)
 
 Para buckets altos (B5 en adelante), el sistema genera **visitas oportunistas**:
 - No se programan en la ruta regular.
-- Aparecen como alertas cuando el cobrador pasa cerca de la direccion del moroso.
-- Se activan solo si el GPS vehicular indica que el vehiculo del moroso esta en la ubicacion.
+- Aparecen como alertas cuando el cobrador pasa cerca del moroso.
+- Se activan solo si el GPS vehicular indica que el vehiculo esta en la ubicacion.
 - El cobrador decide si realiza la visita o continua con su ruta.
 
 ::: info Nota
