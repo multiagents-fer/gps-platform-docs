@@ -5,38 +5,61 @@ Manual de uso del dashboard de supervision para la plataforma de Cobranza Inteli
 ## Flujo de Operacion Diaria del Supervisor
 
 ```mermaid
-flowchart TB
-    A["Login\nSUP-CENTRAL"] --> B["Dashboard\nKPIs Generales"]
-    B --> C{"Asignar\nAgenda?"}
-    C -->|"Si"| D["Wizard de\nAsignacion"]
-    C -->|"No (auto 6AM)"| E["Monitoreo\nen Vivo"]
+flowchart TD
+    subgraph LOGIN["ACCESO"]
+        A["Iniciar Sesion\nSUP-CENTRAL"]:::blue
+    end
 
-    D --> D1["1. Seleccionar\nBucket B1-B10"]
-    D1 --> D2["2. Generar\nPaquetes K-Means"]
-    D2 --> D3["3. Elegir\nEstrategia"]
-    D3 --> D4["4. Asignar a\nCobrador"]
-    D4 --> E
+    A --> B["Dashboard Principal\nKPIs: morosos, asignados,\nrecuperado, efectividad"]:::blue
 
-    E --> E1["Mapa en vivo\ncon cobradores"]
-    E --> E2["Estado de\nrutas activas"]
-    E --> E3["Alertas de\nre-optimizacion"]
+    subgraph FUNCIONES["FUNCIONES PRINCIPALES"]
+        direction TB
 
-    B --> F["Reportes"]
-    F --> F1["Ejecutivo"]
-    F --> F2["Por Cobrador"]
-    F --> F3["GPS / ML"]
-    F --> F4["Promesas"]
+        subgraph AGENDA["ASIGNACION DE AGENDA"]
+            direction TB
+            D1["Paso 1\nSeleccionar Bucket\nB1 a B10"]:::amber
+            D2["Paso 2\nGenerar Paquetes\nK-Means geografico"]:::amber
+            D3["Paso 3\nElegir Estrategia\ndebt_focused / gps_online"]:::amber
+            D4["Paso 4\nAsignar a Cobrador\nverificar capacidad"]:::amber
+            D1 --> D2 --> D3 --> D4
+        end
 
-    B --> G["Pipeline ML"]
-    G --> G1["Ejecutar\ndeteccion"]
-    G1 --> G2["Ver residencias\ndetectadas"]
-    G2 --> G3["Ver ventanas\nhorarias"]
+        subgraph MONITOREO["MONITOREO EN VIVO"]
+            direction TB
+            E1["Mapa con ubicacion\nde todos los cobradores"]:::green
+            E2["Estado de cada ruta\npendiente / en progreso / completada"]:::green
+            E3["Alertas automaticas\nde re-optimizacion"]:::green
+        end
 
-    style A fill:#eff6ff,stroke:#3b82f6
-    style D fill:#fef3c7,stroke:#f59e0b
-    style E fill:#ecfdf5,stroke:#10b981
-    style F fill:#f3e8ff,stroke:#8b5cf6
-    style G fill:#fef9c3,stroke:#eab308
+        subgraph REPORTES["REPORTES"]
+            direction TB
+            F1["Ejecutivo\nKPIs generales y tendencias"]:::purple
+            F2["Por Cobrador\nvisitas, promesas, efectividad"]:::purple
+            F3["GPS y ML\nresidencias, trails, predicciones"]:::purple
+            F4["Promesas\ncumplimiento y vencimientos"]:::purple
+        end
+
+        subgraph ML["PIPELINE ML"]
+            direction TB
+            G1["Ejecutar deteccion\nde residencias"]:::yellow
+            G2["Ver residencias\ndetectadas por GPS"]:::yellow
+            G3["Ver ventanas\nhorarias optimas"]:::yellow
+            G1 --> G2 --> G3
+        end
+    end
+
+    B --> AGENDA
+    B --> MONITOREO
+    B --> REPORTES
+    B --> ML
+
+    D4 -->|"Rutas generadas\npara cobradores"| E1
+
+    classDef blue fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a5f
+    classDef green fill:#d1fae5,stroke:#059669,stroke-width:2px,color:#064e3b
+    classDef amber fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#78350f
+    classDef purple fill:#f3e8ff,stroke:#7c3aed,stroke-width:2px,color:#4c1d95
+    classDef yellow fill:#fef9c3,stroke:#ca8a04,stroke-width:2px,color:#713f12
 ```
 
 ## Ventajas del Sistema

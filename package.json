@@ -20,6 +20,8 @@
   },
   "homepage": "https://github.com/multiagents-fer/gps-platform-docs#readme",
   "devDependencies": {
-    "vitepress": "^1.6.4"
+    "mermaid": "^11.13.0",
+    "vitepress": "^1.6.4",
+    "vitepress-plugin-mermaid": "^2.0.17"
   }
 }

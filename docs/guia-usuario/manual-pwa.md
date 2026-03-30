@@ -2,30 +2,45 @@
 
 Manual de uso de la aplicacion movil para cobradores de campo. Esta guia cubre todas las funciones disponibles en **time.agentsmx.com/mi-agenda/**.
 
-## Flujo General de Trabajo Diario
+## Flujo General — Tu Dia de Trabajo
 
 ```mermaid
-flowchart TB
-    A["Abrir App\ntime.agentsmx.com"] --> B["Iniciar Sesion\n(COB-GPS-XX)"]
-    B --> C["Ver Mi Agenda\n(Mapa / Lista)"]
-    C --> D{"Iniciar Ruta?"}
-    D -->|"Si"| E["Sistema reordena\nparadas por GPS"]
-    D -->|"No"| F["Continuar con\norden original"]
-    E --> G["Navegar al\nprimer cliente"]
-    F --> G
-    G --> H["Llegar al\ndomicilio"]
-    H --> I["Registrar Visita\n(4 pasos)"]
-    I --> J{"Mas clientes\npendientes?"}
-    J -->|"Si"| G
-    J -->|"No"| K["Ruta Completada\nVer Reporte"]
+flowchart TD
+    subgraph INICIO["1. INICIO DE JORNADA"]
+        A["Abrir la App"]:::blue --> B["Ingresar Credenciales\nCOB-GPS-XX + Contrasena"]:::blue
+        B --> C["Pantalla Mi Agenda"]:::blue
+    end
 
-    L["Alerta de\nProximidad"] -.->|"Vibracion"| H
+    subgraph RUTA["2. PREPARAR LA RUTA"]
+        C --> D{"Presionar\nIniciar Ruta?"}:::decision
+        D -->|"Si — Recomendado"| E["El sistema detecta\ntu ubicacion GPS"]:::green
+        E --> F["Las paradas se reordenan\nautomaticamente desde\ntu posicion actual"]:::green
+        D -->|"No"| G["Las paradas quedan\nen el orden original"]:::gray
+    end
 
-    style A fill:#eff6ff,stroke:#3b82f6
-    style E fill:#ecfdf5,stroke:#10b981
-    style I fill:#fef3c7,stroke:#f59e0b
-    style K fill:#ecfdf5,stroke:#10b981
-    style L fill:#fef9c3,stroke:#eab308
+    subgraph CICLO["3. CICLO DE VISITAS"]
+        F --> H["Ir al siguiente cliente\nBoton: Navegar"]:::blue
+        G --> H
+        H --> I["Llegar al domicilio"]:::blue
+        I --> J["Registrar resultado\nde la visita"]:::amber
+        J --> K{"Quedan clientes\npendientes?"}:::decision
+        K -->|"Si"| H
+        K -->|"No"| L["RUTA COMPLETADA\nVer tu reporte del dia"]:::green
+    end
+
+    subgraph ALERTAS["ALERTAS AUTOMATICAS"]
+        direction LR
+        M["Tu celular vibra\ncuando pasas cerca\nde un cliente en\nventana horaria"]:::alert
+    end
+
+    M -.->|"Aviso de\nproximidad"| I
+
+    classDef blue fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a5f
+    classDef green fill:#d1fae5,stroke:#059669,stroke-width:2px,color:#064e3b
+    classDef amber fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#78350f
+    classDef gray fill:#f1f5f9,stroke:#94a3b8,stroke-width:1px,color:#475569
+    classDef alert fill:#fef9c3,stroke:#ca8a04,stroke-width:2px,color:#713f12
+    classDef decision fill:#f0f9ff,stroke:#0284c7,stroke-width:2px,color:#0c4a6e
 ```
 
 ## Ventajas del Sistema
@@ -186,19 +201,35 @@ Si la direccion GPS esta disponible, el boton "Navegar" usara esa por defecto, y
 ### Flujo de Registro de Visita
 
 ```mermaid
-flowchart LR
-    A["Paso 1\nSeleccionar\nResultado"] --> B{"Es promesa?"}
-    B -->|"Si"| C["Paso 2\nFecha + Monto\n+ Notas"]
-    B -->|"No"| D["Paso 3\nFotos +\nObservaciones"]
-    C --> D
-    D --> E["Paso 4\nConfirmar\ny Enviar"]
-    E --> F["Visita\nRegistrada"]
+flowchart TD
+    subgraph PASO1["PASO 1 — Seleccionar Resultado"]
+        A["Tocar al cliente\ny presionar Registrar"]:::blue --> B{"Que tipo\nde resultado?"}:::decision
+        B -->|"Positivo"| C["Promesa de pago\nEntrega auto garantia\nEntrega auto definitiva"]:::green
+        B -->|"Accion"| D["Carta visita\nCarta juridico\nCita despacho"]:::amber
+        B -->|"Negativo"| E["No dan acceso\nNo vive ahi\nCasa abandonada\nNo se localizo"]:::red
+    end
 
-    style A fill:#eff6ff,stroke:#3b82f6
-    style C fill:#fef3c7,stroke:#f59e0b
-    style D fill:#f3e8ff,stroke:#8b5cf6
-    style E fill:#ecfdf5,stroke:#10b981
-    style F fill:#ecfdf5,stroke:#10b981
+    subgraph PASO2["PASO 2 — Detalles (solo promesas)"]
+        C --> F["Fecha de pago\nMonto prometido\nNotas del acuerdo"]:::amber
+    end
+
+    subgraph PASO3["PASO 3 — Evidencia"]
+        D --> G["Tomar fotos\nEscribir observaciones"]:::purple
+        E --> G
+        F --> G
+    end
+
+    subgraph PASO4["PASO 4 — Confirmar"]
+        G --> H["Revisar informacion\ny presionar Enviar"]:::blue
+        H --> I["VISITA REGISTRADA\nTu supervisor la ve\nen tiempo real"]:::green
+    end
+
+    classDef blue fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a5f
+    classDef green fill:#d1fae5,stroke:#059669,stroke-width:2px,color:#064e3b
+    classDef amber fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#78350f
+    classDef red fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#7f1d1d
+    classDef purple fill:#f3e8ff,stroke:#7c3aed,stroke-width:2px,color:#4c1d95
+    classDef decision fill:#f0f9ff,stroke:#0284c7,stroke-width:2px,color:#0c4a6e
 ```
 
 Cuando llegas con un cliente o a una direccion, debes registrar el resultado de la visita. Sigue estos pasos:

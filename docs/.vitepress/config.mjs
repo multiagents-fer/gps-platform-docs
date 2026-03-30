@@ -1,6 +1,7 @@
 import { defineConfig } from 'vitepress'
+import { withMermaid } from 'vitepress-plugin-mermaid'
 
-export default defineConfig({
+export default withMermaid(defineConfig({
   lang: 'es-MX',
   title: 'AgentsMX Docs',
   description: 'Documentacion completa del ecosistema AgentsMX — Plataforma automotriz inteligente',
@@ -227,4 +228,19 @@ export default defineConfig({
     returnToTopLabel: 'Volver arriba',
     sidebarMenuLabel: 'Menu',
   },
-})
+
+  mermaid: {
+    theme: 'base',
+    themeVariables: {
+      primaryColor: '#eff6ff',
+      primaryBorderColor: '#3b82f6',
+      primaryTextColor: '#1e3a5f',
+      secondaryColor: '#ecfdf5',
+      secondaryBorderColor: '#10b981',
+      tertiaryColor: '#fef3c7',
+      tertiaryBorderColor: '#f59e0b',
+      lineColor: '#64748b',
+      fontSize: '14px',
+    },
+  },
+}))
