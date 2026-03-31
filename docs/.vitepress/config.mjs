@@ -118,6 +118,7 @@ export default withMermaid(defineConfig({
           text: 'Base de Datos',
           items: [
             { text: 'Resumen de Schemas', link: '/tecnico/base-datos/' },
+            { text: 'Marketplace Microservices', link: '/tecnico/base-datos/marketplace-microservices' },
             { text: 'GPS Data (TimescaleDB)', link: '/tecnico/base-datos/gps-data' },
             { text: 'Cobranza', link: '/tecnico/base-datos/cobranza' },
             { text: 'Scrapper Nacional', link: '/tecnico/base-datos/scrapper-nacional' },

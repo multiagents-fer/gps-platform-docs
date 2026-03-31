@@ -69,6 +69,14 @@ erDiagram
     VEHICLE_DOSSIERS ||--o{ VALUATION_SNAPSHOTS : valuacion_de
 
     VEHICLES_MKT ||--o{ KAVAK_PRICE_HISTORY : historial_de
+    VEHICLES_MKT ||--o{ VEHICLE_MEDIA : imagenes
+    VEHICLES_MKT ||--o{ PURCHASE_INTENTS : compra_de
+    USERS_MKT ||--o{ PURCHASE_INTENTS : realiza
+    USERS_MKT ||--o{ CREDIT_APPLICATIONS : solicita
+    USERS_MKT ||--o{ INSURANCE_POLICIES : contrata
+    USERS_MKT ||--o{ KYC_VERIFICATIONS : verifica
+    CREDIT_APPLICATIONS ||--o{ LENDER_OFFERS : recibe
+    INSURANCE_QUOTES ||--o{ INSURANCE_OFFERS : cotiza
 ```
 
 ## Conexiones por Servicio
@@ -128,6 +136,7 @@ alembic history
 
 ## Siguiente Lectura
 
+- [Marketplace Microservices](/tecnico/base-datos/marketplace-microservices) - ER completo: vehicles, auth, purchase, financing, insurance, KYC, chat, reports
 - [GPS Data (TimescaleDB)](/tecnico/base-datos/gps-data) - Hypertables y compresión
 - [Cobranza](/tecnico/base-datos/cobranza) - Clientes y rutas
 - [Scrapper Nacional](/tecnico/base-datos/scrapper-nacional) - Vehículos marketplace
