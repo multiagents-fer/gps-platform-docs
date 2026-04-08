@@ -76,6 +76,7 @@ export default withMermaid(defineConfig({
             { text: 'Reportes y Metricas', link: '/guia-usuario/cobranza/reportes' },
             { text: 'App Cobrador (PWA)', link: '/guia-usuario/cobranza/pwa-cobrador' },
             { text: 'Cartera Morosa', link: '/guia-usuario/cobranza/cartera-morosa' },
+            { text: 'Estrategia y Reglas', link: '/guia-usuario/cobranza/estrategia-reglas' },
           ]
         }
       ],
