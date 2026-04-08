@@ -60,17 +60,25 @@ El sistema ejecuta **8 pasos en orden**, como un embudo que filtra y prioriza ha
 
 ### Flujo del calculo
 
-```mermaid
-flowchart TD
-    A["1. Monto de deuda\n(30%)"] --> B["2. GPS\n(15%)"]
-    B --> C["3. Subfactores\n(55%)"]
-    C --> D["4. Multiplicadores"]
-    D --> E["5. Urgencia"]
-    E --> F["6. Buckets"]
-    F --> G["7. Capacidad"]
-    G --> H["8. Geografia"]
-    H --> I["Ruta lista"]
-```
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px;max-width:280px;margin:1rem auto;">
+  <div style="width:100%;text-align:center;padding:10px 12px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;font-size:13px;font-weight:600;">1. Monto de deuda <span style="color:#6b7280;font-weight:400;">(30%)</span></div>
+  <div style="color:#94a3b8;">▼</div>
+  <div style="width:100%;text-align:center;padding:10px 12px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:10px;font-size:13px;font-weight:600;">2. GPS <span style="color:#6b7280;font-weight:400;">(15%)</span></div>
+  <div style="color:#94a3b8;">▼</div>
+  <div style="width:100%;text-align:center;padding:10px 12px;background:#fefce8;border:1px solid #fde68a;border-radius:10px;font-size:13px;font-weight:600;">3. Subfactores <span style="color:#6b7280;font-weight:400;">(55%)</span></div>
+  <div style="color:#94a3b8;">▼</div>
+  <div style="width:100%;text-align:center;padding:10px 12px;background:#fce4ec;border:1px solid #f9a8d4;border-radius:10px;font-size:13px;font-weight:600;">4. Multiplicadores</div>
+  <div style="color:#94a3b8;">▼</div>
+  <div style="width:100%;text-align:center;padding:10px 12px;background:#f5f3ff;border:1px solid #c4b5fd;border-radius:10px;font-size:13px;font-weight:600;">5. Urgencia</div>
+  <div style="color:#94a3b8;">▼</div>
+  <div style="width:100%;text-align:center;padding:10px 12px;background:#e0f7fa;border:1px solid #80deea;border-radius:10px;font-size:13px;font-weight:600;">6. Buckets</div>
+  <div style="color:#94a3b8;">▼</div>
+  <div style="width:100%;text-align:center;padding:10px 12px;background:#fff8e1;border:1px solid #ffe082;border-radius:10px;font-size:13px;font-weight:600;">7. Capacidad</div>
+  <div style="color:#94a3b8;">▼</div>
+  <div style="width:100%;text-align:center;padding:10px 12px;background:#e8f5e9;border:1px solid #a5d6a7;border-radius:10px;font-size:13px;font-weight:600;">8. Geografia</div>
+  <div style="color:#94a3b8;">▼</div>
+  <div style="width:100%;text-align:center;padding:10px 12px;background:#e3f2fd;border:2px solid #42a5f5;border-radius:10px;font-size:13px;font-weight:700;color:#1565c0;">Ruta lista</div>
+</div>
 
 ---
 
@@ -369,12 +377,21 @@ Controlan como el sistema calcula distancias y normaliza scores:
 
 Cada regla funciona como un **interruptor**. Al desactivarla, el sistema la salta:
 
-```mermaid
-flowchart TD
-    A{"Se desactiva\nuna regla?"} -->|Si| B["El pipeline\nsalta esa regla"]
-    B --> C["Se recalcula\nsin ese factor"]
-    A -->|No| D["Se aplica\nnormalmente"]
-```
+<div style="max-width:320px;margin:1rem auto;">
+  <div style="text-align:center;padding:12px;background:#fff3e0;border:2px solid #ffb74d;border-radius:12px;font-size:13px;font-weight:600;">Se desactiva una regla?</div>
+  <div style="display:flex;gap:12px;margin-top:8px;">
+    <div style="flex:1;text-align:center;">
+      <div style="color:#94a3b8;font-size:12px;margin-bottom:4px;">Si ▼</div>
+      <div style="padding:10px 8px;background:#fce4ec;border:1px solid #f48fb1;border-radius:10px;font-size:12px;font-weight:600;">El pipeline salta esa regla</div>
+      <div style="color:#94a3b8;font-size:12px;margin:4px 0;">▼</div>
+      <div style="padding:10px 8px;background:#ffebee;border:1px solid #ef9a9a;border-radius:10px;font-size:12px;font-weight:600;">Se recalcula sin ese factor</div>
+    </div>
+    <div style="flex:1;text-align:center;">
+      <div style="color:#94a3b8;font-size:12px;margin-bottom:4px;">No ▼</div>
+      <div style="padding:10px 8px;background:#e8f5e9;border:1px solid #a5d6a7;border-radius:10px;font-size:12px;font-weight:600;">Se aplica normalmente</div>
+    </div>
+  </div>
+</div>
 
 | Accion | Resultado |
 |---|---|
