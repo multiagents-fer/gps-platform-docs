@@ -1,0 +1,145 @@
+/* ── Mermaid diagrams: responsive ────────────────────────── */
+.mermaid {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+  padding: 0.5rem 0;
+}
+
+.mermaid svg {
+  max-width: 100%;
+  height: auto !important;
+}
+
+/* ── VitePress content: prevent overflow ────────────────── */
+.vp-doc {
+  overflow-x: hidden;
+}
+
+.vp-doc table {
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+}
+
+/* ── Pipeline step cards (custom HTML) ──────────────────── */
+.pipeline-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .pipeline-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 960px) {
+  .pipeline-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.pipeline-step {
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  background: var(--vp-c-bg-soft);
+  transition: border-color 0.2s;
+}
+
+.pipeline-step:hover {
+  border-color: var(--vp-c-brand-1);
+}
+
+.pipeline-step .step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--vp-c-brand-1);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.pipeline-step h4 {
+  margin: 0 0 0.25rem 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.pipeline-step p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--vp-c-text-2);
+  line-height: 1.5;
+}
+
+/* ── Impact cards ───────────────────────────────────────── */
+.impact-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+@media (min-width: 640px) {
+  .impact-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.impact-card {
+  border-radius: 12px;
+  padding: 1rem;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.impact-card.impacto {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+}
+
+.impact-card.ventaja {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+}
+
+.impact-card.desventaja {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+}
+
+.impact-card.ejemplo {
+  background: #f5f3ff;
+  border: 1px solid #c4b5fd;
+}
+
+.impact-card strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ── Flow connector (vertical line between steps) ───────── */
+.flow-connector {
+  display: flex;
+  justify-content: center;
+  padding: 0.25rem 0;
+}
+
+.flow-connector::after {
+  content: "▼";
+  color: var(--vp-c-text-3);
+  font-size: 14px;
+}

@@ -13,56 +13,63 @@ Supervisores, gerentes y directivos que necesitan entender y configurar las regl
 
 ## Vision General del Pipeline
 
-El siguiente diagrama muestra el flujo completo desde que el sistema recibe los datos hasta que el cobrador recibe su ruta optimizada en el celular:
+El sistema ejecuta **8 pasos en orden**, como un embudo que filtra y prioriza hasta generar la ruta final del cobrador:
+
+<div class="pipeline-grid">
+  <div class="pipeline-step">
+    <span class="step-number">1</span>
+    <h4>Priorizacion por Deuda</h4>
+    <p>Clasifica clientes por monto adeudado. A mayor deuda, mayor prioridad.</p>
+  </div>
+  <div class="pipeline-step">
+    <span class="step-number">2</span>
+    <h4>Clasificacion GPS</h4>
+    <p>Evalua si el GPS esta activo, apagado o sin dispositivo.</p>
+  </div>
+  <div class="pipeline-step">
+    <span class="step-number">3</span>
+    <h4>Subfactores GPS</h4>
+    <p>Analiza horarios, posicion del vehiculo, predicciones y confianza de la IA.</p>
+  </div>
+  <div class="pipeline-step">
+    <span class="step-number">4</span>
+    <h4>Multiplicadores</h4>
+    <p>Aplica bonus o penalizaciones segun condiciones especiales.</p>
+  </div>
+  <div class="pipeline-step">
+    <span class="step-number">5</span>
+    <h4>Reglas de Urgencia</h4>
+    <p>Suma puntos extra a cuentas criticas (promesas rotas, marcas urgentes).</p>
+  </div>
+  <div class="pipeline-step">
+    <span class="step-number">6</span>
+    <h4>Peso por Antiguedad</h4>
+    <p>Ajusta la agresividad de cobranza segun los dias de atraso (B1-B10).</p>
+  </div>
+  <div class="pipeline-step">
+    <span class="step-number">7</span>
+    <h4>Capacidad del Cobrador</h4>
+    <p>Limita cuantos clientes puede visitar cada cobrador por dia.</p>
+  </div>
+  <div class="pipeline-step">
+    <span class="step-number">8</span>
+    <h4>Configuracion Geografica</h4>
+    <p>Ajusta distancias, radios y velocidades para la zona de trabajo.</p>
+  </div>
+</div>
+
+### Flujo del calculo
 
 ```mermaid
 flowchart TD
-    A["ML Pipeline detecta<br/>ubicaciones y horarios"] --> B["Se cargan los pesos<br/>de la estrategia"]
-    B --> C["Se calcula el score<br/>de prioridad base"]
-    C --> D["Se aplican<br/>multiplicadores"]
-    D --> E["Se suman puntos<br/>de urgencia"]
-    E --> F["Agrupacion geografica<br/>por zonas (K-Means)"]
-    F --> G["Se aplican limites<br/>de capacidad"]
-    G --> H["Ruta optimizada y<br/>asignada al cobrador"]
-    H --> I["Cobrador recibe ruta<br/>en la app movil"]
-
-    style A fill:#e3f2fd,stroke:#1976d2
-    style B fill:#e8f5e9,stroke:#4caf50
-    style C fill:#fff3e0,stroke:#f57c00
-    style D fill:#fce4ec,stroke:#e91e63
-    style E fill:#f3e5f5,stroke:#7b1fa2
-    style F fill:#e0f7fa,stroke:#0097a7
-    style G fill:#fff8e1,stroke:#ffa000
-    style H fill:#e8f5e9,stroke:#388e3c
-    style I fill:#e3f2fd,stroke:#1565c0
-```
-
-```mermaid
-flowchart LR
-    subgraph SCORE["Calculo del Score Base"]
-        direction TB
-        S1["Monto de deuda<br/>30%"]
-        S2["Clasificacion GPS<br/>15%"]
-        S3["Subfactores GPS<br/>55%"]
-    end
-
-    subgraph AJUSTE["Ajustes al Score"]
-        direction TB
-        S4["Multiplicadores"]
-        S5["Puntos de urgencia"]
-    end
-
-    subgraph RUTA["Creacion de Ruta"]
-        direction TB
-        S6["Capacidad del cobrador"]
-        S7["Config. geografica"]
-    end
-
-    SCORE --> AJUSTE --> RUTA
-
-    style SCORE fill:#eff6ff,stroke:#3b82f6
-    style AJUSTE fill:#fef3c7,stroke:#f59e0b
-    style RUTA fill:#ecfdf5,stroke:#10b981
+    A["1. Monto de deuda\n(30%)"] --> B["2. GPS\n(15%)"]
+    B --> C["3. Subfactores\n(55%)"]
+    C --> D["4. Multiplicadores"]
+    D --> E["5. Urgencia"]
+    E --> F["6. Buckets"]
+    F --> G["7. Capacidad"]
+    G --> H["8. Geografia"]
+    H --> I["Ruta lista"]
 ```
 
 ---
@@ -76,7 +83,7 @@ flowchart LR
 
 El sistema clasifica a cada cliente segun el monto total que debe y le asigna una prioridad. A mayor deuda, mayor prioridad en la ruta.
 
-| Rango de deuda | Nivel de prioridad |
+| Rango de deuda | Prioridad |
 |---|---|
 | Menos de $5,000 | Baja |
 | $5,000 — $10,000 | Media-baja |
@@ -85,12 +92,24 @@ El sistema clasifica a cada cliente segun el monto total que debe y le asigna un
 | $40,000 — $100,000 | Alta |
 | Mas de $100,000 | Muy alta |
 
-**Impacto:** Determina cuales clientes se visitan primero en el dia.
-
-| Ventajas | Desventajas |
-|---|---|
-| Maximiza la recuperacion economica por cada ruta generada | Las cuentas con montos pequenos pueden acumular dias de atraso sin ser visitadas |
-| Enfoca el esfuerzo del cobrador en las cuentas de mayor valor | Puede generar concentracion excesiva en pocos clientes grandes |
+<div class="impact-grid">
+  <div class="impact-card impacto">
+    <strong>Impacto</strong>
+    Determina cuales clientes se visitan primero en el dia. Deudas grandes suben al inicio de la ruta.
+  </div>
+  <div class="impact-card ventaja">
+    <strong>Ventajas</strong>
+    Maximiza la recuperacion economica por cada ruta. El cobrador atiende primero las cuentas de mayor valor.
+  </div>
+  <div class="impact-card desventaja">
+    <strong>Desventajas</strong>
+    Las cuentas con montos pequenos pueden acumular dias de atraso sin ser visitadas.
+  </div>
+  <div class="impact-card ejemplo">
+    <strong>Ejemplo</strong>
+    Un cliente con $80,000 de deuda se visitara antes que uno con $3,000, aunque ambos tengan el mismo atraso.
+  </div>
+</div>
 
 ---
 
@@ -99,26 +118,32 @@ El sistema clasifica a cada cliente segun el monto total que debe y le asigna un
 ::: info Peso en el score: 15%
 :::
 
-El sistema evalua el estado del dispositivo GPS instalado en el vehiculo del cliente para determinar que tan confiable es la informacion de ubicacion.
+El sistema evalua el estado del dispositivo GPS instalado en el vehiculo del cliente:
 
-```mermaid
-flowchart LR
-    GPS{"Estado del GPS"}
-    GPS -->|Conectado| ONLINE["GPS Online<br/>70 puntos"]
-    GPS -->|Desconectado| OFFLINE["GPS Offline<br/>45 puntos"]
-    GPS -->|Sin dispositivo| NOGPS["Sin GPS<br/>20 puntos"]
+| Estado | Puntos | Significado |
+|---|---|---|
+| GPS Online | 70 pts | Transmitiendo en tiempo real |
+| GPS Offline | 45 pts | Dejo de transmitir |
+| Sin GPS | 20 pts | No tiene dispositivo |
 
-    style ONLINE fill:#e8f5e9,stroke:#4caf50
-    style OFFLINE fill:#fff3e0,stroke:#f57c00
-    style NOGPS fill:#fce4ec,stroke:#e91e63
-```
-
-**Impacto:** Los clientes con GPS activo reciben prioridad porque el sistema puede ubicarlos con mayor precision.
-
-| Ventajas | Desventajas |
-|---|---|
-| Mejor precision en la ubicacion de los clientes | Penaliza a clientes cuyo GPS se descompuso sin que ellos lo causaran |
-| Reduce visitas fallidas por no encontrar al cliente | Clientes sin GPS tienden a quedar al final de la ruta |
+<div class="impact-grid">
+  <div class="impact-card impacto">
+    <strong>Impacto</strong>
+    Los clientes con GPS activo reciben prioridad porque el sistema puede ubicarlos con mayor precision.
+  </div>
+  <div class="impact-card ventaja">
+    <strong>Ventajas</strong>
+    Mejor precision en la ubicacion. Reduce visitas fallidas por no encontrar al cliente.
+  </div>
+  <div class="impact-card desventaja">
+    <strong>Desventajas</strong>
+    Penaliza a clientes cuyo GPS se descompuso sin que ellos lo causaran.
+  </div>
+  <div class="impact-card ejemplo">
+    <strong>Ejemplo</strong>
+    Dos clientes con $50,000 de deuda: el que tiene GPS activo se visitara antes que el que tiene GPS apagado.
+  </div>
+</div>
 
 ---
 
@@ -127,23 +152,35 @@ flowchart LR
 ::: info Peso en el score: 55% (cuando el GPS esta activo)
 :::
 
-Cuando el GPS del vehiculo esta conectado, el sistema utiliza **6 factores en tiempo real** para optimizar el momento exacto de la visita:
+Cuando el GPS del vehiculo esta conectado, el sistema utiliza **6 factores en tiempo real**:
 
 | Factor | Peso | Que hace |
 |---|---|---|
-| Ventana de tiempo | 20% | Identifica las horas en que el cliente suele estar en casa |
-| Posicion del vehiculo | 20% | Verifica donde esta el vehiculo en este momento |
-| Afinidad con cobrador | 5% | Prefiere asignar al cobrador que ya conoce al cliente |
-| Prediccion futura | 15% | Predice donde estara el vehiculo en las proximas horas |
-| Confianza en domicilio | 10% | Que tan seguro esta el sistema de la ubicacion del hogar |
-| Confianza en trabajo | 5% | Que tan seguro esta el sistema de la ubicacion del trabajo |
+| Ventana de tiempo | 20% | Horas en que el cliente suele estar en casa |
+| Posicion del vehiculo | 20% | Donde esta el vehiculo ahora |
+| Afinidad con cobrador | 5% | Prefiere al mismo cobrador |
+| Prediccion futura | 15% | Donde estara el vehiculo cuando el cobrador llegue |
+| Confianza en domicilio | 10% | Seguridad de la direccion de casa |
+| Confianza en trabajo | 5% | Seguridad de la direccion de trabajo |
 
-**Impacto:** Maximiza la probabilidad de encontrar al cliente en su domicilio.
-
-| Ventajas | Desventajas |
-|---|---|
-| Mejora la tasa de contacto entre un 15% y 20% | Depende de la calidad de la senal GPS |
-| Optimiza el horario de visita para cada cliente | Si el GPS reporta datos erroneos, las decisiones se afectan |
+<div class="impact-grid">
+  <div class="impact-card impacto">
+    <strong>Impacto</strong>
+    Maximiza la probabilidad de encontrar al cliente en su domicilio. El cobrador no pierde tiempo visitando casas vacias.
+  </div>
+  <div class="impact-card ventaja">
+    <strong>Ventajas</strong>
+    Mejora la tasa de contacto entre un 15% y 20%. Optimiza el horario de visita para cada cliente.
+  </div>
+  <div class="impact-card desventaja">
+    <strong>Desventajas</strong>
+    Depende de la calidad de la senal GPS. Si el GPS falla, las decisiones se afectan.
+  </div>
+  <div class="impact-card ejemplo">
+    <strong>Ejemplo</strong>
+    Si el vehiculo esta a 200m de la casa del deudor a las 7am, el sistema prioriza visitarlo en la manana.
+  </div>
+</div>
 
 ---
 
@@ -152,22 +189,34 @@ Cuando el GPS del vehiculo esta conectado, el sistema utiliza **6 factores en ti
 ::: info Peso en el score: 55% (cuando el GPS esta inactivo)
 :::
 
-Cuando el GPS esta desconectado, el sistema **no se rinde**. Utiliza **5 factores basados en datos historicos** y modelos de machine learning para tomar decisiones inteligentes:
+Cuando el GPS esta desconectado, el sistema usa **datos historicos y modelos de IA**:
 
 | Factor | Peso | Que hace |
 |---|---|---|
-| Ventana de tiempo | 25% | Usa patrones historicos de cuando el cliente suele estar en casa |
-| Afinidad con cobrador | 10% | Prefiere al cobrador que tiene mejor relacion con el cliente |
-| Prediccion futura | 20% | Predice comportamiento basado en meses de datos acumulados |
-| Confianza en domicilio | 15% | Nivel de certeza del domicilio basado en historial |
-| Confianza en trabajo | 10% | Nivel de certeza del lugar de trabajo basado en historial |
+| Ventana de tiempo | 25% | Patrones historicos de presencia en casa |
+| Afinidad con cobrador | 10% | Continuidad compensa la falta de GPS |
+| Prediccion futura | 20% | Comportamiento basado en meses de datos |
+| Confianza en domicilio | 15% | Certeza del domicilio por historial |
+| Confianza en trabajo | 10% | Certeza del lugar de trabajo |
 
-**Impacto:** El sistema sigue tomando decisiones inteligentes aunque no tenga datos en tiempo real.
-
-| Ventajas | Desventajas |
-|---|---|
-| Aprovecha meses de datos historicos para compensar la falta de GPS | Menos preciso que cuando se tiene informacion en tiempo real |
-| El cobrador no pierde visitas por fallas de GPS | Los patrones historicos pueden no reflejar cambios recientes del cliente |
+<div class="impact-grid">
+  <div class="impact-card impacto">
+    <strong>Impacto</strong>
+    El sistema sigue tomando decisiones inteligentes aunque no tenga datos en tiempo real.
+  </div>
+  <div class="impact-card ventaja">
+    <strong>Ventajas</strong>
+    Aprovecha meses de datos historicos. El cobrador no pierde visitas por fallas de GPS.
+  </div>
+  <div class="impact-card desventaja">
+    <strong>Desventajas</strong>
+    Menos preciso que GPS online. Los patrones historicos pueden no reflejar cambios recientes del cliente.
+  </div>
+  <div class="impact-card ejemplo">
+    <strong>Ejemplo</strong>
+    Un cliente cuyo GPS se apago hace 15 dias: la IA sabe que solia llegar a casa a las 7pm y sugiere visitarlo despues de esa hora.
+  </div>
+</div>
 
 ---
 
@@ -176,38 +225,34 @@ Cuando el GPS esta desconectado, el sistema **no se rinde**. Utiliza **5 factore
 ::: info Se aplican despues del calculo base
 :::
 
-Los multiplicadores ajustan el score final hacia arriba o hacia abajo segun condiciones especiales. Funcionan como un **bonus o penalizacion**:
+Ajustan el score final hacia arriba o hacia abajo segun condiciones especiales:
 
-```mermaid
-flowchart TD
-    BASE["Score Base<br/>calculado"] --> CHECK{"Condiciones<br/>especiales?"}
-    CHECK -->|Cobrador asignado| M1["x 1.15<br/>Bonus de continuidad"]
-    CHECK -->|Bucket B4+| M2["x 1.10<br/>Alta agresividad"]
-    CHECK -->|Urgente + promesa rota| M3["x 1.25<br/>Maxima prioridad"]
-    CHECK -->|GPS apagado > 7 dias| M4["x 0.90<br/>Penalizacion leve"]
-    CHECK -->|GPS apagado > 30 dias| M5["x 0.75<br/>Penalizacion fuerte"]
-
-    style M1 fill:#e8f5e9,stroke:#4caf50
-    style M2 fill:#fff3e0,stroke:#f57c00
-    style M3 fill:#fce4ec,stroke:#e91e63
-    style M4 fill:#fff8e1,stroke:#ffa000
-    style M5 fill:#ffebee,stroke:#c62828
-```
-
-| Multiplicador | Valor | Que significa |
+| Multiplicador | Valor | Significado |
 |---|---|---|
-| Cobrador asignado previamente | x 1.15 | El cliente se asigna de preferencia al mismo cobrador para mantener continuidad |
-| Bucket B4 o superior | x 1.10 | Cuentas con mas dias de atraso reciben un impulso extra |
-| Urgente + promesa incumplida | x 1.25 | El cliente prometio pagar y no cumplio, ademas tiene marca urgente |
-| GPS apagado mas de 7 dias | x 0.90 | Penalizacion leve: baja un 10% el score |
-| GPS apagado mas de 30 dias | x 0.75 | Penalizacion fuerte: baja un 25% el score |
+| Cobrador asignado previamente | x 1.15 | Continuidad con el mismo cobrador |
+| Bucket B4 o superior | x 1.10 | Cuentas con mucho atraso |
+| Urgente + promesa rota | x 1.25 | Maxima urgencia |
+| GPS apagado > 7 dias | x 0.90 | Penalizacion leve (-10%) |
+| GPS apagado > 30 dias | x 0.75 | Penalizacion fuerte (-25%) |
 
-**Impacto:** Ajusta el score final para manejar situaciones especiales sin modificar la configuracion base.
-
-| Ventajas | Desventajas |
-|---|---|
-| Permite manejar casos especiales de forma flexible | Si los valores son muy agresivos, pueden distorsionar todo el scoring |
-| No requiere cambiar la configuracion principal | Multiples multiplicadores acumulados pueden generar scores impredecibles |
+<div class="impact-grid">
+  <div class="impact-card impacto">
+    <strong>Impacto</strong>
+    Ajustan el score final para manejar situaciones especiales sin modificar la configuracion base.
+  </div>
+  <div class="impact-card ventaja">
+    <strong>Ventajas</strong>
+    Permiten dar prioridad extra a situaciones criticas de forma flexible.
+  </div>
+  <div class="impact-card desventaja">
+    <strong>Desventajas</strong>
+    Si se abusa de valores altos, pueden distorsionar el scoring y hacer impredecible el orden de la ruta.
+  </div>
+  <div class="impact-card ejemplo">
+    <strong>Ejemplo</strong>
+    Un cliente con promesa incumplida (x1.25) sube automaticamente en la lista, sin importar su monto de deuda.
+  </div>
+</div>
 
 ---
 
@@ -216,36 +261,34 @@ flowchart TD
 ::: warning Estas reglas tienen la maxima prioridad
 :::
 
-Las reglas de urgencia suman puntos directamente al puntaje de prioridad. Sus valores son tan altos que **garantizan** que los casos criticos se visiten primero.
+Suman puntos directamente al puntaje. Sus valores son tan altos que **garantizan** que los casos criticos se visiten primero:
 
 | Regla | Puntos extra | Descripcion |
 |---|---|---|
-| Urgente + promesa vencida | +10,000 | El cliente tiene marca urgente Y su promesa de pago ya vencio |
-| Promesa de pago vencida | +5,000 | El cliente prometio pagar en una fecha que ya paso |
-| Marca urgente | +3,000 | El supervisor marco al cliente como urgente |
-| GPS conectado | +500 | Bonus por tener GPS activo en este momento |
-| Reintento de visita fallida | +200 | El cobrador intento visitar y no encontro al cliente |
+| Urgente + promesa vencida | +10,000 | Marca urgente Y promesa incumplida |
+| Promesa de pago vencida | +5,000 | Prometio pagar y no cumplio |
+| Marca urgente | +3,000 | Supervisor la marco como urgente |
+| GPS conectado | +500 | GPS activo en este momento |
+| Reintento visita fallida | +200 | No se encontro al cliente antes |
 
-```mermaid
-flowchart LR
-    SCORE["Score base:<br/>850 pts"] --> U1["+ 10,000<br/>Urgente + promesa"]
-    U1 --> FINAL["Score final:<br/>10,850 pts"]
-
-    SCORE2["Score base:<br/>920 pts"] --> U2["Sin urgencia<br/>+0"]
-    U2 --> FINAL2["Score final:<br/>920 pts"]
-
-    style U1 fill:#fce4ec,stroke:#e91e63
-    style FINAL fill:#ffebee,stroke:#c62828
-    style U2 fill:#e8f5e9,stroke:#4caf50
-    style FINAL2 fill:#e8f5e9,stroke:#388e3c
-```
-
-**Impacto:** Garantiza que las cuentas criticas sean visitadas sin importar su score base.
-
-| Ventajas | Desventajas |
-|---|---|
-| Nunca se pierden situaciones criticas | Los valores tan altos pueden monopolizar la ruta si hay muchos casos urgentes |
-| El supervisor tiene control directo marcando como urgente | Si se abusa de la marca urgente, pierde su efectividad |
+<div class="impact-grid">
+  <div class="impact-card impacto">
+    <strong>Impacto</strong>
+    Garantiza que las cuentas criticas sean visitadas sin importar su score base.
+  </div>
+  <div class="impact-card ventaja">
+    <strong>Ventajas</strong>
+    Nunca se pierden situaciones criticas. El supervisor tiene control directo.
+  </div>
+  <div class="impact-card desventaja">
+    <strong>Desventajas</strong>
+    Valores tan altos pueden monopolizar la ruta si hay muchos casos urgentes a la vez.
+  </div>
+  <div class="impact-card ejemplo">
+    <strong>Ejemplo</strong>
+    Una cuenta con score base de 850 + urgencia de 10,000 = 10,850 puntos. Sera la primera visita del dia.
+  </div>
+</div>
 
 ---
 
@@ -254,26 +297,36 @@ flowchart LR
 ::: info Limites operativos por cobrador
 :::
 
-Esta regla define cuantos clientes puede visitar un cobrador en un dia, basandose en tiempos reales de operacion:
+Define cuantos clientes puede visitar un cobrador en un dia:
 
 | Parametro | Valor | Significado |
 |---|---|---|
-| Minutos de trabajo | 600 min (10 horas) | Jornada laboral total del cobrador |
-| Duracion de visita | 25 minutos | Tiempo promedio que toma cada visita |
-| Tiempo de traslado | 12 minutos | Tiempo promedio entre un cliente y otro |
-| Minimo de paradas | 8 | El cobrador debe visitar al menos 8 clientes |
-| Maximo de paradas | 20 | El cobrador no puede tener mas de 20 clientes en un dia |
+| Minutos de trabajo | 600 (10 hrs) | Jornada total |
+| Duracion de visita | 25 min | Tiempo por parada |
+| Tiempo de traslado | 12 min | Entre un cliente y otro |
+| Minimo de paradas | 8 | Piso por cobrador |
+| Maximo de paradas | 20 | Techo por cobrador |
 
-**Calculo simplificado:**
-> Con 25 min por visita + 12 min de traslado = 37 min por cliente.
-> En 600 minutos de jornada: 600 / 37 = **~16 visitas posibles por dia**.
+**Calculo:** 25 min visita + 12 min traslado = 37 min por cliente. En 600 minutos: **~16 visitas por dia**.
 
-**Impacto:** Determina cuantos clientes entran en la ruta de cada cobrador.
-
-| Ventajas | Desventajas |
-|---|---|
-| Evita sobrecargar al cobrador con demasiados clientes | Si los valores no reflejan la realidad, se generan rutas con visitas apresuradas |
-| Asegura que cada visita tenga el tiempo suficiente | Un maximo muy bajo puede dejar clientes sin visitar |
+<div class="impact-grid">
+  <div class="impact-card impacto">
+    <strong>Impacto</strong>
+    Determina cuantos clientes entran en la ruta de cada cobrador.
+  </div>
+  <div class="impact-card ventaja">
+    <strong>Ventajas</strong>
+    Evita sobrecargar al cobrador. Cada visita tiene el tiempo suficiente.
+  </div>
+  <div class="impact-card desventaja">
+    <strong>Desventajas</strong>
+    Valores incorrectos causan visitas apresuradas o tiempo muerto.
+  </div>
+  <div class="impact-card ejemplo">
+    <strong>Ejemplo</strong>
+    Si reduces el maximo a 12 paradas, cada cobrador da mejor atencion pero necesitas mas cobradores para cubrir la cartera.
+  </div>
+</div>
 
 ---
 
@@ -282,96 +335,92 @@ Esta regla define cuantos clientes puede visitar un cobrador en un dia, basandos
 ::: info Parametros de distancia y limites
 :::
 
-Estos parametros controlan como el sistema calcula distancias y normaliza los scores segun la geografia de la ciudad:
+Controlan como el sistema calcula distancias y normaliza scores:
 
 | Parametro | Valor | Significado |
 |---|---|---|
-| Radio del domicilio | 300 metros | El cliente se considera "en casa" si el GPS esta dentro de este radio |
-| Tope de monto | $100,000 | Monto maximo considerado para la normalizacion del score |
-| Tope de dias de atraso | 180 dias | Dias maximo considerados para la normalizacion |
-| Velocidad promedio en ciudad | 30 km/h | Se usa para calcular los tiempos de traslado entre clientes |
+| Radio del domicilio | 300 m | GPS dentro = "en casa" |
+| Tope de monto | $100,000 | Maximo para normalizacion |
+| Tope de dias | 180 dias | Maximo de antiguedad |
+| Velocidad en ciudad | 30 km/h | Para calcular traslados |
 
-**Impacto:** Controla la precision de los calculos de distancia y la normalizacion de scores.
-
-| Ventajas | Desventajas |
-|---|---|
-| Se adapta a la geografia local de cada ciudad | Si los valores son incorrectos, las rutas seran ineficientes |
-| Permite ajustar para ciudades con diferente trafico | Un radio muy grande marca al cliente como "en casa" cuando no lo esta |
+<div class="impact-grid">
+  <div class="impact-card impacto">
+    <strong>Impacto</strong>
+    Controla la precision de los calculos de distancia y la normalizacion de scores.
+  </div>
+  <div class="impact-card ventaja">
+    <strong>Ventajas</strong>
+    Se adapta a la geografia local. Permite ajustar para ciudades con diferente trafico.
+  </div>
+  <div class="impact-card desventaja">
+    <strong>Desventajas</strong>
+    Valores incorrectos causan rutas ineficientes. Un radio muy grande da falsos positivos.
+  </div>
+  <div class="impact-card ejemplo">
+    <strong>Ejemplo</strong>
+    Con radio de 300m, si el vehiculo esta a 250m de la casa del deudor, el sistema lo considera "en casa".
+  </div>
+</div>
 
 ---
 
 ## Que pasa cuando activo o desactivo una regla
 
-Cada regla del pipeline funciona como un **interruptor**. Al activarla o desactivarla, el comportamiento del sistema cambia de manera predecible:
+Cada regla funciona como un **interruptor**. Al desactivarla, el sistema la salta:
 
 ```mermaid
 flowchart TD
-    TOGGLE{"Se desactiva<br/>una regla?"}
-    TOGGLE -->|Si| SKIP["El pipeline salta<br/>esa regla"]
-    SKIP --> RECALC["Se recalcula el score<br/>sin ese componente"]
-    RECALC --> EFFECT["El peso se redistribuye<br/>entre las reglas activas"]
-
-    TOGGLE -->|No| ACTIVE["La regla permanece<br/>activa"]
-    ACTIVE --> NORMAL["Se aplica normalmente<br/>en el pipeline"]
-
-    style TOGGLE fill:#fff3e0,stroke:#f57c00
-    style SKIP fill:#fce4ec,stroke:#e91e63
-    style EFFECT fill:#ffebee,stroke:#c62828
-    style ACTIVE fill:#e8f5e9,stroke:#4caf50
-    style NORMAL fill:#e8f5e9,stroke:#388e3c
+    A{"Se desactiva\nuna regla?"} -->|Si| B["El pipeline\nsalta esa regla"]
+    B --> C["Se recalcula\nsin ese factor"]
+    A -->|No| D["Se aplica\nnormalmente"]
 ```
 
 | Accion | Resultado |
 |---|---|
-| Desactivar **Priorizacion por Monto** | Todos los clientes tienen igual prioridad sin importar cuanto deben. Se pierde la optimizacion economica |
-| Desactivar **Clasificacion GPS** | El sistema no distingue entre GPS activo, apagado o sin dispositivo. Todos pesan igual |
-| Desactivar **Multiplicadores** | No hay bonus ni penalizaciones. El cobrador asignado no tiene ventaja, y GPS apagado no se penaliza |
-| Desactivar **Reglas de Urgencia** | Los casos criticos (promesas rotas, marcas urgentes) se tratan igual que cualquier otro cliente |
-| Desactivar **Capacidad del Cobrador** | El sistema no limita cuantos clientes se asignan. Puede generar rutas imposibles de completar |
+| Desactivar **Monto de Deuda** | Todos los clientes tienen igual prioridad sin importar cuanto deben |
+| Desactivar **GPS** | No se distingue entre GPS activo, apagado o sin dispositivo |
+| Desactivar **Multiplicadores** | No hay bonus ni penalizaciones. GPS apagado no se penaliza |
+| Desactivar **Urgencia** | Casos criticos se tratan igual que cualquier otro cliente |
+| Desactivar **Capacidad** | Sin limites de paradas. Puede generar rutas imposibles |
 
 ::: danger Precaucion
-Desactivar multiples reglas al mismo tiempo puede generar rutas de baja calidad. Se recomienda hacer cambios de una regla a la vez y evaluar el resultado.
+Desactivar multiples reglas al mismo tiempo puede generar rutas de baja calidad. Haz cambios de una regla a la vez y evalua el resultado.
 :::
 
 ---
 
-## Como afecta cada cambio
+## Como afecta cada cambio — Ejemplos
 
-Veamos ejemplos concretos de como un cambio en la configuracion impacta la ruta diaria:
+### Ejemplo 1: Aumentar el peso del monto
 
-### Ejemplo 1: Aumentar el peso del monto de deuda
+> **Antes:** Monto = 30% → **Despues:** Monto = 50%
 
-> **Antes:** Monto de deuda = 30% del score
-> **Despues:** Monto de deuda = 50% del score
+**Resultado:** Clientes con deudas grandes dominan la ruta. Uno con $80,000 siempre va antes que uno con $5,000 aunque tenga GPS activo.
 
-**Resultado:** Los clientes con deudas grandes dominan la ruta. Un cliente con $80,000 de deuda aparecera antes que uno con $5,000 aunque el de $5,000 tenga GPS activo y el de $80,000 no.
+### Ejemplo 2: Aumentar multiplicador de cobrador
 
-### Ejemplo 2: Aumentar el multiplicador de cobrador asignado
+> **Antes:** x1.15 → **Despues:** x1.40
 
-> **Antes:** Cobrador asignado = x1.15
-> **Despues:** Cobrador asignado = x1.40
+**Resultado:** Fuerte continuidad. El cobrador casi siempre visita a los mismos clientes. Mejora relacion pero reduce flexibilidad.
 
-**Resultado:** El sistema prioriza fuertemente la continuidad. Un cobrador casi siempre visitara a los mismos clientes, lo cual mejora la relacion pero reduce la flexibilidad cuando un cobrador falta.
+### Ejemplo 3: Reducir maximo de paradas
 
-### Ejemplo 3: Reducir el maximo de paradas
+> **Antes:** 20 paradas → **Despues:** 12 paradas
 
-> **Antes:** Max paradas = 20
-> **Despues:** Max paradas = 12
+**Resultado:** Menos clientes por dia pero mejor atencion. Se necesitan mas cobradores.
 
-**Resultado:** Cada cobrador visita menos clientes por dia. Las visitas son mas largas y con mejor atencion, pero se necesitan mas cobradores para cubrir la misma cartera.
+### Ejemplo 4: Reducir radio del domicilio
 
-### Ejemplo 4: Reducir el radio del domicilio
+> **Antes:** 300m → **Despues:** 100m
 
-> **Antes:** Radio = 300 metros
-> **Despues:** Radio = 100 metros
+**Resultado:** Mas estricto para "en casa". Menos falsos positivos pero mas detecciones perdidas.
 
-**Resultado:** El sistema es mucho mas estricto para considerar que el cliente esta "en casa". Menos falsos positivos, pero tambien menos detecciones correctas en zonas con GPS impreciso.
-
-### Ejemplo 5: Abusar de la marca de urgencia
+### Ejemplo 5: Abusar de la marca urgente
 
 > **Situacion:** El supervisor marca 15 de 20 clientes como urgentes
 
-**Resultado:** Todos compiten con +3,000 puntos, asi que la marca pierde su efecto. Los 5 clientes no marcados son ignorados incluso si tienen deudas grandes.
+**Resultado:** Todos compiten con +3,000 puntos — la marca pierde su efecto. Los 5 no marcados son ignorados.
 
 ---
 
@@ -379,26 +428,26 @@ Veamos ejemplos concretos de como un cambio en la configuracion impacta la ruta 
 
 ### Para el dia a dia
 
-- **No cambiar multiples reglas al mismo tiempo.** Haz un cambio, observa los resultados por 2-3 dias, y luego ajusta.
-- **Usar la marca de urgencia con moderacion.** Si todos los clientes son urgentes, ninguno lo es realmente.
-- **Revisar las rutas generadas** antes de publicarlas a los cobradores para validar que la distribucion es razonable.
+- **Un cambio a la vez.** Haz un cambio, observa 2-3 dias, luego ajusta.
+- **Marca de urgencia con moderacion.** Si todos son urgentes, ninguno lo es.
+- **Revisa las rutas** antes de publicarlas para validar la distribucion.
 
-### Para los multiplicadores
+### Para multiplicadores
 
-- **No subir los multiplicadores arriba de x1.50** a menos que haya una razon muy especifica. Valores muy altos distorsionan todo el pipeline.
-- **Los multiplicadores de penalizacion** (GPS apagado) deben ser graduales. Una penalizacion muy severa hace que esos clientes nunca sean visitados.
+- **No subir arriba de x1.50** salvo razon muy especifica.
+- **Penalizaciones graduales** — muy severas hacen que esos clientes nunca sean visitados.
 
-### Para la capacidad
+### Para capacidad
 
-- **Medir tiempos reales** de visita y traslado antes de ajustar estos valores. Usar datos de las rutas completadas para calibrar.
-- **El minimo de paradas** protege contra rutas demasiado cortas. No lo bajes de 6.
-- **El maximo de paradas** protege al cobrador. No lo subas de 22 sin consultar al equipo de campo.
+- **Mide tiempos reales** de visita y traslado antes de ajustar.
+- **Minimo de paradas:** no bajar de 6.
+- **Maximo de paradas:** no subir de 22 sin consultar al equipo de campo.
 
-### Para la configuracion geografica
+### Para geografia
 
-- **El radio del domicilio** debe ser mayor en zonas rurales (400-500m) y puede ser menor en zonas urbanas densas (200m).
-- **La velocidad promedio** debe reflejar las condiciones reales de trafico de la ciudad. En ciudades con mucho trafico, usar 20-25 km/h.
+- **Radio domicilio:** mayor en zonas rurales (400-500m), menor en zonas urbanas (200m).
+- **Velocidad promedio:** en ciudades con mucho trafico, usar 20-25 km/h.
 
 ::: tip Regla de oro
-El mejor ajuste es el que se basa en datos reales. Revisa los reportes de visitas completadas, tasa de contacto y tiempo promedio por visita antes de hacer cambios en la configuracion.
+El mejor ajuste se basa en datos reales. Revisa los reportes de visitas completadas, tasa de contacto y tiempo promedio antes de cambiar la configuracion.
 :::
